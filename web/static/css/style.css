@@ -1488,3 +1488,356 @@ main {
   .mastery-table th, .mastery-table td { padding: 8px 10px; }
   .history-item { flex-wrap: wrap; gap: 8px; }
 }
+
+/* ========== 美化增强 - 小学生友好 ========== */
+
+/* 更活泼的背景 */
+body {
+  background: linear-gradient(180deg, #F0F0FF 0%, #FFF5F0 50%, #F0FFF4 100%);
+  background-attachment: fixed;
+}
+
+/* 导航栏更活泼 */
+.navbar {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  border-bottom: none;
+  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+}
+
+.nav-brand {
+  color: #fff !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.nav-link {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.2) !important;
+  color: #fff !important;
+}
+
+.nav-link.active {
+  background: rgba(255,255,255,0.3) !important;
+  color: #fff !important;
+}
+
+/* Hero区域更活泼 */
+.hero h1 {
+  font-size: 42px;
+  background: linear-gradient(135deg, #FF6B6B, #FFE66D, #4ECDC4, #6C5CE7);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* 卡片增加彩色边框 */
+.class-select-card {
+  border: 3px solid transparent;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.class-select-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FF6B6B, #FFE66D, #4ECDC4, #6C5CE7);
+}
+
+.class-select-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(108, 92, 231, 0.2);
+}
+
+/* 知识点卡片增加彩色左边框 */
+.kp-point-card {
+  border-left: 4px solid #6C5CE7;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.kp-point-card:hover {
+  border-left-color: #FF6B6B;
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+/* 知识点图标更活泼 */
+.kp-point-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  font-size: 24px;
+  animation: iconBounce 2s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* 游戏卡片更活泼 */
+.game-card {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.game-card-cover {
+  height: 140px;
+  border-radius: 20px 20px 0 0;
+}
+
+.game-card-cover .game-emoji {
+  animation: floatEmoji 3s ease-in-out infinite;
+}
+
+@keyframes floatEmoji {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 按钮更活泼 */
+.btn-primary {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #00B894, #55EFC4);
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+}
+
+.btn-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.5);
+}
+
+/* 学生头像卡片更活泼 */
+.students-page-grid .student-card {
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: all 0.3s;
+}
+
+.students-page-grid .student-card:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(108, 92, 231, 0.15);
+}
+
+.students-page-grid .student-avatar {
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* 仪表板统计卡片彩色 */
+.dashboard-stat-card:nth-child(1) {
+  background: linear-gradient(135deg, #E8FFF5, #D4F5E9);
+  border: 2px solid #B8F0D8;
+}
+
+.dashboard-stat-card:nth-child(2) {
+  background: linear-gradient(135deg, #FFF8E8, #FFECD2);
+  border: 2px solid #FFD9A8;
+}
+
+.dashboard-stat-card:nth-child(3) {
+  background: linear-gradient(135deg, #F0EDFF, #E0DAFF);
+  border: 2px solid #C8BFFF;
+}
+
+.dashboard-stat-card .stat-value {
+  font-size: 36px;
+}
+
+/* 知识点进度圆圈更大更活泼 */
+.kp-progress-circle {
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.kp-progress-circle.mastered {
+  background: linear-gradient(135deg, #55EFC4, #00B894);
+  color: #fff;
+}
+
+.kp-progress-circle.learning {
+  background: linear-gradient(135deg, #FFECD2, #FDCB6E);
+  color: #E17055;
+}
+
+.kp-progress-circle.weak {
+  background: linear-gradient(135deg, #FFB8B8, #FF7675);
+  color: #fff;
+}
+
+/* 年级标题更活泼 */
+.grade-section-title {
+  font-size: 22px;
+  border-left: 4px solid #6C5CE7;
+  background: linear-gradient(90deg, rgba(108,92,231,0.08), transparent);
+  padding: 12px 16px;
+  border-radius: 0 12px 12px 0;
+}
+
+/* 搜索框更活泼 */
+.search-input {
+  border-radius: 50px;
+  border: 2px solid #E0DAFF;
+  padding: 12px 24px;
+  background: #fff;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  border-color: #6C5CE7;
+  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+}
+
+/* 空状态更活泼 */
+.empty-state .icon {
+  font-size: 72px;
+  animation: emptyBounce 2s ease-in-out infinite;
+}
+
+@keyframes emptyBounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.1) rotate(5deg); }
+}
+
+/* 分数徽章更活泼 */
+.score-badge {
+  border-radius: 50px;
+  padding: 4px 14px;
+  font-size: 14px;
+}
+
+/* 班级分析概览卡片彩色 */
+.analytics-overview .overview-card:nth-child(1) {
+  background: linear-gradient(135deg, #E8FFF5, #D4F5E9);
+  border: 2px solid #B8F0D8;
+}
+
+.analytics-overview .overview-card:nth-child(2) {
+  background: linear-gradient(135deg, #FFF8E8, #FFECD2);
+  border: 2px solid #FFD9A8;
+}
+
+.analytics-overview .overview-card:nth-child(3) {
+  background: linear-gradient(135deg, #F0EDFF, #E0DAFF);
+  border: 2px solid #C8BFFF;
+}
+
+/* 柱状图更活泼 */
+.bar-chart-track {
+  height: 28px;
+  border-radius: 14px;
+  background: #F0F0F0;
+}
+
+.bar-chart-fill {
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+/* 导航栏学生信息更活泼 */
+.nav-student {
+  background: rgba(255,255,255,0.2) !important;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50px;
+}
+
+/* 浮动装饰元素 */
+.hero::after {
+  content: '🌟📚🎮🚀🎨';
+  display: block;
+  font-size: 32px;
+  letter-spacing: 16px;
+  margin-top: 24px;
+  animation: floatDecor 3s ease-in-out infinite;
+}
+
+@keyframes floatDecor {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* 卡片入场动画 */
+.fade-in {
+  animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 掌握情况表格更活泼 */
+.mastery-table {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.mastery-table th {
+  background: linear-gradient(135deg, #F0EDFF, #E8E4FF);
+  font-size: 14px;
+  color: #6C5CE7;
+}
+
+.mastery-table tr:hover td {
+  background: #FAFAFF;
+}
+
+/* 历史记录更活泼 */
+.history-item {
+  border-radius: 16px;
+  border-left: 4px solid #6C5CE7;
+}
+
+/* 步骤指示器更活泼 */
+.student-step.active .step-num {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+}
+
+.student-step.done .step-num {
+  background: linear-gradient(135deg, #00B894, #55EFC4);
+}
+
+/* 模态框更活泼 */
+.student-modal-content,
+.analytics-modal-content {
+  border-radius: 28px;
+  box-shadow: 0 24px 80px rgba(108, 92, 231, 0.2);
+}
+
+.student-modal-header,
+.analytics-modal-header {
+  background: linear-gradient(135deg, #F0EDFF, #E8E4FF, #F0FFF4);
+}

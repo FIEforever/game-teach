@@ -5,7 +5,7 @@
 
 > 🏆 **SOLO 挑战赛「Hello AI 科技致善」公益赛道参赛作品** — 命题二：为乡村教师打造得力教学助手
 
-🔗 **在线体验**：部署到 Vercel 后在此补充地址 | **GitHub**：[FIEforever/game-teach](https://github.com/FIEforever/game-teach)
+🔗 **在线体验**：[https://game-teach.vercel.app](https://game-teach.vercel.app) | **GitHub**：[FIEforever/game-teach](https://github.com/FIEforever/game-teach)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/FIEforever/game-teach)
 
