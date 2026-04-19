@@ -13,14 +13,17 @@
 
 ## 📸 系统截图
 
-### 首页 — 班级选择
+### 首页 — 选择班级开始学习
 ![首页](docs/screenshots/01-home.png)
 
-### 班级列表 — 按年级分组
+### 班级列表 — 按年级分组展示
 ![班级列表](docs/screenshots/02-classes.png)
 
 ### 知识点浏览 — 单元+知识点树
 ![知识点](docs/screenshots/03-knowledge.png)
+
+### 游戏详情 — 教学游戏列表
+![游戏详情](docs/screenshots/04-games.png)
 
 ---
 
