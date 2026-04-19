@@ -3,7 +3,24 @@
 > **让每个知识点都变成好玩的游戏！**
 > 将小学数学知识点转化为精美互动小游戏，通过游戏化学习提升学生学习兴趣和知识掌握率。
 
+> 🏆 **SOLO 挑战赛「Hello AI 科技致善」公益赛道参赛作品** — 命题二：为乡村教师打造得力教学助手
+
+🔗 **在线体验**：部署到 Vercel 后在此补充地址 | **GitHub**：[FIEforever/game-teach](https://github.com/FIEforever/game-teach)
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/FIEforever/game-teach)
+
+---
+
+## 📸 系统截图
+
+### 首页 — 班级选择
+![首页](docs/screenshots/01-home.png)
+
+### 班级列表 — 按年级分组
+![班级列表](docs/screenshots/02-classes.png)
+
+### 知识点浏览 — 单元+知识点树
+![知识点](docs/screenshots/03-knowledge.png)
 
 ---
 
