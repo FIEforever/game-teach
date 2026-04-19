@@ -1,3 +1,9 @@
+// Vercel 环境使用内存 JSON 数据库（better-sqlite3 是原生模块，不支持 serverless）
+if (process.env.VERCEL) {
+  module.exports = require('../../api/db')
+  return
+}
+
 const Database = require('better-sqlite3')
 const path = require('path')
 
