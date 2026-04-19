@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>括号跑跑跑 - 四则运算应用</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(180deg,#87CEEB 0%,#98FB98 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.runner{font-size:60px;margin:16px 0;animation:run 1s ease-in-out infinite}
+@keyframes run{0%,100%{transform:translateX(0) scaleX(1)}50%{transform:translateX(20px) scaleX(-1)}}
+.btn{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:400px;position:relative;overflow:hidden}
+.scenario{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:16px;padding:16px;margin-bottom:16px;font-size:15px;line-height:1.8;color:#1565C0;text-align:left;position:relative}
+.scenario .emoji{font-size:24px;margin-right:4px}
+.track{position:relative;height:120px;background:linear-gradient(180deg,#8BC34A 0%,#689F38 100%);border-radius:16px;margin:12px 0;overflow:hidden}
+.track::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,0.1) 40px,rgba(255,255,255,0.1) 42px)}
+.track-road{position:absolute;top:50%;left:0;right:0;height:30px;background:#555;border-radius:4px;transform:translateY(-50%)}
+.track-road::after{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:repeating-linear-gradient(90deg,#FFD54F,#FFD54F 20px,transparent 20px,transparent 40px);transform:translateY(-50%)}
+.character{position:absolute;top:50%;transform:translateY(-70%);font-size:32px;transition:left 1s ease-in-out;z-index:2}
+.obstacle{position:absolute;top:50%;transform:translateY(-50%);font-size:28px;z-index:1;transition:opacity .5s}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.opt{padding:14px;border:3px solid #E0E0E0;border-radius:14px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#4CAF50;transform:scale(1.03)}
+.opt.correct{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;animation:pulse .5s}
+.opt.wrong{border-color:#f44336;background:#FFEBEE;color:#C62828;animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.cloud{position:absolute;font-size:20px;opacity:0.6;animation:cloudFloat 8s linear infinite}
+@keyframes cloudFloat{from{transform:translateX(-30px)}to{transform:translateX(calc(100% + 30px))}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🏃 括号跑跑跑</h1>
+    <p>四则运算应用 · 四年级</p>
+    <div class="runner">🏃‍♂️</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">解决生活中的数学问题<br>帮助小跑者越过障碍！共10关</p>
+    <button class="btn" onclick="startGame()">开始冒险 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="scenario" id="sc"></div>
+      <div class="track" id="track">
+        <div class="track-road"></div>
+        <div class="character" id="char" style="left:5%">🏃‍♂️</div>
+        <div class="obstacle" id="obs" style="left:70%">🧱</div>
+        <div class="cloud" style="top:5px;animation-delay:0s">☁️</div>
+        <div class="cloud" style="top:15px;animation-delay:3s">☁️</div>
+      </div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 冒险结束！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const scenarios=[
+    ()=>{
+      const a=rand(3,8),b=rand(2,5),c=rand(10,30);
+      const ans=(a+b)*c;
+      return{text:`<span class="emoji">📚</span>小明有${a}本故事书和${b}本科技书，小红的书是小明总数的${c}倍，小红有几本书？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(20,50),b=rand(2,5),c=rand(10,20);
+      const ans=a-(b*c);
+      return{text:`<span class="emoji">💰</span>妈妈带了${a}元，买了${b}支笔，每支${c}元，还剩多少钱？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(5,12),b=rand(3,8),c=rand(2,4);
+      const ans=a*b+c;
+      return{text:`<span class="emoji">🍎</span>水果店有${a}箱苹果，每箱${b}个，又运来${c}个，现在共有几个苹果？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(50,100),b=rand(2,5),c=rand(2,5);
+      const ans=a-(b+c);
+      return{text:`<span class="emoji">🎫</span>小明有${a}元，买门票花了${b}元，买零食花了${c}元，还剩多少元？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(3,8),b=rand(3,8),c=rand(2,5);
+      const ans=(a+b)*c;
+      return{text:`<span class="emoji">🎨</span>美术课有${a}个男生和${b}个女生，每组${c}人，可以分几组？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(10,30),b=rand(2,4),c=rand(5,10);
+      const ans=a*b-c;
+      return{text:`<span class="emoji">🚗</span>停车场有${a}排车位，每排${b}个，已经停了${c}辆车，还有几个空位？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(100,200),b=rand(20,50),c=rand(2,5);
+      const ans=(a-b)*c;
+      return{text:`<span class="emoji">🏢</span>一栋楼有${a}户，已经入住了${b}户，剩下的平均分到${c}个单元，每个单元几户？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(5,15),b=rand(5,15),c=rand(2,5);
+      const ans=a*c+b*c;
+      return{text:`<span class="emoji">✏️</span>买了${a}支铅笔和${b}支钢笔，每种都是${c}元，一共花了多少元？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(2,5),b=rand(10,20),c=rand(2,5);
+      const ans=a*b+c*b;
+      return{text:`<span class="emoji">🎪</span>大人${a}个，小孩${c}个，门票大人${b}元，小孩半价，一共多少元？`,answer:ans,options:genOpts(ans)};
+    },
+    ()=>{
+      const a=rand(3,9),b=rand(3,9),c=rand(2,5);
+      const ans=a*b+c;
+      return{text:`<span class="emoji">🌱</span>种了${a}行树，每行${b}棵，又补种了${c}棵，一共多少棵？`,answer:ans,options:genOpts(ans)};
+    }
+  ];
+  const shuffled=scenarios.sort(()=>Math.random()-0.5);
+  for(let i=0;i<T;i++)r.push(shuffled[i%shuffled.length]());
+  return r;
+}
+
+function genOpts(ans){
+  const s=new Set([ans]);
+  while(s.size<4){
+    const off=rand(-10,10);
+    if(off!==0)s.add(ans+off);
+  }
+  return [...s].sort(()=>Math.random()-0.5);
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('sc').innerHTML=q.text;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('char').style.left='5%';
+  document.getElementById('obs').style.opacity='1';
+  const obs=['🧱','🌊','🔥','🏔️','🌳','🪨','🕳️','🐍','🌪️','🧊'];
+  document.getElementById('obs').textContent=obs[rd%obs.length];
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o;
+    d.onclick=()=>pickAnswer(o,d);
+    opts.appendChild(d);
+  });
+}
+
+function pickAnswer(val,el){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q.answer){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 太棒了！正确答案是 '+q.answer;
+    document.getElementById('char').style.left='85%';
+    document.getElementById('obs').style.opacity='0';
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ 正确答案是 '+q.answer;
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 冒险成功！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

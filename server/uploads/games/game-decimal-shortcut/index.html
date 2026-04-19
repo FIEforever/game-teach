@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>迷宫捷径 - 运算定律推广到小数</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:0 0 20px rgba(46,204,113,0.5);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.maze-preview{font-size:48px;margin:16px 0;animation:mazeMove 3s ease-in-out infinite}
+@keyframes mazeMove{0%,100%{transform:translate(0,0)}25%{transform:translate(10px,-10px)}50%{transform:translate(0,0)}75%{transform:translate(-10px,10px)}}
+.btn{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.15);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,#2ecc71,#3498db);border-radius:4px;transition:width .5s}
+.ga{background:rgba(255,255,255,0.05);border:2px solid rgba(46,204,113,0.3);border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3);min-height:420px;color:#fff}
+.qb{background:rgba(46,204,113,0.2);border:1px solid rgba(46,204,113,0.4);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#A5D6A7}
+.maze{position:relative;height:180px;background:rgba(0,0,0,0.3);border-radius:16px;margin:12px 0;overflow:hidden}
+.maze-grid{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(5,1fr);width:100%;height:100%;gap:1px}
+.maze-cell{border:1px solid rgba(255,255,255,0.05)}
+.maze-cell.wall{background:rgba(255,255,255,0.1)}
+.maze-cell.path{background:rgba(46,204,113,0.1)}
+.maze-cell.door{background:rgba(243,156,18,0.3);cursor:pointer;transition:all .3s}
+.maze-cell.door:hover{background:rgba(243,156,18,0.6)}
+.maze-cell.door.open{background:rgba(46,204,113,0.5);animation:doorOpen .5s}
+@keyframes doorOpen{from{transform:scale(1)}50%{transform:scale(1.2)}to{transform:scale(1)}}
+.maze-cell.exit{background:rgba(231,76,60,0.3)}
+.player-dot{position:absolute;width:20px;height:20px;background:#2ecc71;border-radius:50%;transition:all .5s;z-index:2;box-shadow:0 0 10px rgba(46,204,113,0.5)}
+.exit-dot{position:absolute;width:20px;height:20px;background:#e74c3c;border-radius:50%;z-index:1;box-shadow:0 0 10px rgba(231,76,60,0.5)}
+.door-label{position:absolute;font-size:10px;font-weight:700;color:#f39c12;white-space:nowrap;z-index:3}
+.equation-display{font-size:18px;font-weight:800;margin:10px 0;padding:10px;background:rgba(0,0,0,0.3);border-radius:12px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{padding:12px;border:2px solid rgba(255,255,255,0.2);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;background:rgba(255,255,255,0.05)}
+.opt:hover{border-color:#2ecc71;transform:scale(1.03)}
+.opt.correct{border-color:#2ecc71;background:rgba(46,204,113,0.2);animation:pulse .5s}
+.opt.wrong{border-color:#e74c3c;background:rgba(231,76,60,0.2);animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:rgba(46,204,113,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.3)}
+.fb.no{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid rgba(231,76,60,0.3)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0;color:#2ecc71}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#333;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🏃 迷宫捷径</h1>
+    <p>运算定律推广到小数 · 四年级</p>
+    <div class="maze-preview">🏃🚪🏁</div>
+    <p style="font-size:13px;opacity:0.7;margin-bottom:20px">用运算定律打开迷宫的门<br>找到最快出口！共10关</p>
+    <button class="btn" onclick="startGame()">进入迷宫 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">用运算定律简化计算，打开门</div>
+      <div class="maze" id="maze">
+        <div class="maze-grid" id="mg"></div>
+        <div class="player-dot" id="pd" style="top:10px;left:10px"></div>
+        <div class="exit-dot" id="ed" style="bottom:10px;right:10px"></div>
+      </div>
+      <div class="equation-display" id="eqd"></div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 逃出迷宫！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,2);
+    let question,correct,wrongs,explanation;
+    if(type===0){
+      // Commutative with decimals
+      const a=(rand(1,50)/10);const b=(rand(1,50)/10);
+      const ans=Math.round((a+b)*10)/10;
+      correct=`${a} + ${b} = ${b} + ${a} = ${ans}（交换律）`;
+      wrongs=[`${a} + ${b} = ${ans+0.1}`,`${a} + ${b} = ${ans-0.1}`,`${a} × ${b} = ${Math.round(a*b*10)/10}`];
+      question=`用交换律计算 ${a} + ${b}`;
+    }else if(type===1){
+      // Associative with decimals
+      const a=(rand(1,30)/10);const b=(rand(1,30)/10);const c=(rand(1,30)/10);
+      const ans=Math.round((a+b+c)*10)/10;
+      correct=`(${a}+${b})+${c} = ${a}+(${b}+${c}) = ${ans}（结合律）`;
+      wrongs=[`${a}+${b}+${c} = ${ans+0.1}`,`${a}+${b}-${c} = ${Math.round((a+b-c)*10)/10}`,`${a}×${b}+${c} = ${Math.round(a*b+c)*10)/10}`];
+      question=`用结合律计算 ${a} + ${b} + ${c}`;
+    }else{
+      // Distributive with decimals
+      const a=rand(2,9);const b=(rand(1,50)/10);const c=(rand(1,50)/10);
+      const ans=Math.round(a*(b+c)*10)/10;
+      correct=`${a}×(${b}+${c}) = ${a}×${b}+${a}×${c} = ${ans}（分配律）`;
+      wrongs=[`${a}×(${b}+${c}) = ${ans+1}`,`${a}+${b}×${c} = ${Math.round((a+b*c)*10)/10}`,`${a}×${b}-${a}×${c} = ${Math.round(a*(b-c)*10)/10}`];
+      question=`用分配律计算 ${a} × (${b} + ${c})`;
+    }
+    r.push({question,correct,wrongs:wrongs.filter(w=>!w.includes('undefined')),explanation:correct,options:[correct,...wrongs.filter(w=>!w.includes('undefined'))].sort(()=>Math.random()-0.5)});
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function generateMaze(){
+  const mg=document.getElementById('mg');
+  mg.innerHTML='';
+  for(let r=0;r<5;r++){
+    for(let c=0;c<8;c++){
+      const cell=document.createElement('div');
+      cell.className='maze-cell';
+      if(Math.random()<0.25)cell.classList.add('wall');
+      else cell.classList.add('path');
+      mg.appendChild(cell);
+    }
+  }
+  // Add door
+  const doorRow=rand(1,3),doorCol=rand(2,5);
+  const doorIdx=doorRow*8+doorCol;
+  mg.children[doorIdx].className='maze-cell door';
+}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('eqd').textContent='选择正确的简便计算方法';
+  generateMaze();
+  document.getElementById('pd').style.top='10px';
+  document.getElementById('pd').style.left='10px';
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o;
+    d.onclick=()=>pick(o,d,q);
+    opts.appendChild(d);
+  });
+}
+
+function pick(val,el,q){
+  if(ans)return;
+  ans=true;
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q.correct){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 门打开了！';
+    document.getElementById('eqd').innerHTML='<span style="color:#2ecc71">'+q.correct+'</span>';
+    // Open door and move player
+    document.querySelectorAll('.maze-cell.door').forEach(d=>d.classList.add('open'));
+    document.getElementById('pd').style.bottom='10px';
+    document.getElementById('pd').style.right='10px';
+    document.getElementById('pd').style.top='auto';
+    document.getElementById('pd').style.left='auto';
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ 正确答案：'+q.correct;
+  }
+  setTimeout(()=>{rd++;next()},2200);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 迷宫大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

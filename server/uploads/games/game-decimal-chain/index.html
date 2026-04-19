@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>连锁反应 - 小数加减混合运算</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:0 0 20px rgba(231,76,60,0.5);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.chain-preview{font-size:48px;margin:16px 0;animation:chainReact 2s ease-in-out infinite}
+@keyframes chainReact{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.15);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,#e74c3c,#f39c12);border-radius:4px;transition:width .5s}
+.ga{background:rgba(255,255,255,0.05);border:2px solid rgba(231,76,60,0.3);border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3);min-height:420px;color:#fff}
+.qb{background:rgba(231,76,60,0.2);border:1px solid rgba(231,76,60,0.4);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#FFCDD2}
+.chain-area{position:relative;height:200px;background:rgba(0,0,0,0.3);border-radius:16px;margin:12px 0;overflow:hidden}
+.chain-ball{position:absolute;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;cursor:pointer;transition:all .3s;z-index:2}
+.chain-ball:hover{transform:scale(1.2);z-index:10}
+.chain-ball.exploded{animation:explode .6s forwards}
+@keyframes explode{0%{transform:scale(1);opacity:1}50%{transform:scale(2);opacity:0.5}100%{transform:scale(0);opacity:0}}
+.particle{position:absolute;width:6px;height:6px;border-radius:50%;animation:particleFly .8s ease-out forwards;z-index:3}
+@keyframes particleFly{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(var(--tx),var(--ty))}}
+.chain-connector{position:absolute;height:3px;background:rgba(255,255,255,0.3);z-index:1;transform-origin:left center}
+.equation-display{font-size:22px;font-weight:800;margin:12px 0;padding:12px;background:rgba(0,0,0,0.3);border-radius:12px;letter-spacing:1px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{padding:12px;border:2px solid rgba(255,255,255,0.2);border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;background:rgba(255,255,255,0.05)}
+.opt:hover{border-color:#e74c3c;transform:scale(1.03)}
+.opt.correct{border-color:#2ecc71;background:rgba(46,204,113,0.2);animation:pulse .5s}
+.opt.wrong{border-color:#e74c3c;background:rgba(231,76,60,0.2);animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:rgba(46,204,113,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.3)}
+.fb.no{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid rgba(231,76,60,0.3)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0;color:#e74c3c}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#333;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>💥 连锁反应</h1>
+    <p>小数加减混合运算 · 四年级</p>
+    <div class="chain-preview">💥🔗💥</div>
+    <p style="font-size:13px;opacity:0.7;margin-bottom:20px">答对题目触发连锁爆炸<br>小数加减混合运算！共10关</p>
+    <button class="btn" onclick="startGame()">开始引爆 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>💥 <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">计算下面的小数混合运算</div>
+      <div class="chain-area" id="ca"></div>
+      <div class="equation-display" id="ed"></div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 连锁结束！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,2);
+    let nums,ops,answer,expr;
+    if(type===0){
+      const a=rand(1,20)/10+rand(1,15);
+      const b=rand(1,20)/10+rand(1,15);
+      const c=rand(1,20)/10+rand(1,15);
+      nums=[a,b,c];ops=['+','-'];
+      answer=Math.round((a+b-c)*100)/100;
+      expr=`${a} + ${b} - ${c}`;
+    }else if(type===1){
+      const a=rand(1,20)/10+rand(5,30);
+      const b=rand(1,20)/10+rand(1,15);
+      const c=rand(1,20)/10+rand(1,15);
+      nums=[a,b,c];ops=['-','+'];
+      answer=Math.round((a-b+c)*100)/100;
+      expr=`${a} - ${b} + ${c}`;
+    }else{
+      const a=rand(1,20)/10+rand(1,20);
+      const b=rand(1,20)/10+rand(1,10);
+      const c=rand(1,20)/10+rand(1,10);
+      const d=rand(1,20)/10+rand(1,10);
+      nums=[a,b,c,d];ops=['+','-','+'];
+      answer=Math.round((a+b-c+d)*100)/100;
+      expr=`${a} + ${b} - ${c} + ${d}`;
+    }
+    const wrongs=generateWrongs(answer);
+    r.push({nums,ops,answer,expr,options:[answer,...wrongs].sort(()=>Math.random()-0.5)});
+  }
+  return r;
+}
+
+function generateWrongs(correct){
+  const wrongs=new Set();
+  while(wrongs.size<3){
+    const off=(rand(1,10)/10)*(Math.random()<0.5?1:-1);
+    const w=Math.round((correct+off)*100)/100;
+    if(w!==correct)wrongs.add(w);
+  }
+  return [...wrongs].slice(0,3);
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('ed').innerHTML=q.expr+' = <span style="color:#f39c12">?</span>';
+  // Chain balls
+  const ca=document.getElementById('ca');
+  ca.innerHTML='';
+  const colors=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6'];
+  const allNums=[...q.nums,...q.ops];
+  allNums.forEach((n,i)=>{
+    const ball=document.createElement('div');
+    ball.className='chain-ball';
+    ball.style.background=typeof n==='number'?colors[i%colors.length]:'#555';
+    ball.textContent=typeof n==='number'?n:n;
+    ball.style.left=(5+i*(80/(allNums.length)))+'%';
+    ball.style.top=(30+rand(0,60))+'%';
+    ball.style.animationDelay=(i*0.2)+'s';
+    ca.appendChild(ball);
+  });
+  // Options
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o;
+    d.onclick=()=>pick(o,d,q);
+    opts.appendChild(d);
+  });
+}
+
+function pick(val,el,q){
+  if(ans)return;
+  ans=true;
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q.answer){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent=`✅ 连锁爆炸！${q.expr} = ${q.answer}`;
+    document.getElementById('ed').innerHTML=q.expr+' = <span style="color:#2ecc71">'+q.answer+'</span>';
+    explodeChain();
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent=`❌ 答案是 ${q.answer}`;
+  }
+  setTimeout(()=>{rd++;next()},2200);
+}
+
+function explodeChain(){
+  const ca=document.getElementById('ca');
+  const balls=ca.querySelectorAll('.chain-ball');
+  balls.forEach((b,i)=>{
+    setTimeout(()=>{
+      b.classList.add('exploded');
+      createParticles(b);
+    },i*150);
+  });
+}
+
+function createParticles(ball){
+  const ca=document.getElementById('ca');
+  const rect=ball.getBoundingClientRect();
+  const caRect=ca.getBoundingClientRect();
+  const cx=rect.left-caRect.left+25;
+  const cy=rect.top-caRect.top+25;
+  const colors=['#e74c3c','#f39c12','#2ecc71','#3498db','#FFD700'];
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left=cx+'px';p.style.top=cy+'px';
+    p.style.background=colors[i%colors.length];
+    p.style.setProperty('--tx',(Math.random()*60-30)+'px');
+    p.style.setProperty('--ty',(Math.random()*60-30)+'px');
+    ca.appendChild(p);
+    setTimeout(()=>p.remove(),800);
+  }
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 连锁大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

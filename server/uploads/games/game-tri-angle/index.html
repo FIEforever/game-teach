@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角拼图 - 三角形内角和</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.puzzle-preview{font-size:48px;margin:16px 0;animation:puzzleMove 2s ease-in-out infinite}
+@keyframes puzzleMove{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(5deg)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#6A1B9A}
+.puzzle-area{position:relative;height:200px;background:linear-gradient(135deg,#F5F5F5,#EEEEEE);border-radius:16px;margin:12px 0;overflow:hidden;border:3px solid #CE93D8}
+.angle-piece{position:absolute;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;border-radius:8px}
+.angle-piece:hover{transform:scale(1.1);z-index:10}
+.angle-piece.placed{animation:snapIn .3s}
+@keyframes snapIn{from{transform:scale(1.2)}to{transform:scale(1)}}
+.target-triangle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:100px}
+.target-triangle svg{width:100%;height:100%}
+.angle-slots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.angle-slot{width:50px;height:40px;border:2px dashed #CE93D8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;transition:all .3s}
+.angle-slot.filled{border-style:solid;background:#E1BEE7;color:#6A1B9A;font-weight:700}
+.sum-display{font-size:20px;font-weight:800;padding:10px;background:#F3E5F5;border-radius:12px;margin:10px 0;color:#6A1B9A}
+.sum-display .total{font-size:28px}
+.angle-pieces-tray{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap;min-height:50px;padding:10px;background:#FAFAFA;border-radius:12px}
+.tray-piece{padding:8px 14px;border-radius:10px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;transition:all .3s}
+.tray-piece:hover{transform:scale(1.1)}
+.tray-piece.used{opacity:0.3;pointer-events:none;transform:scale(0.8)}
+.options{display:flex;gap:10px;justify-content:center;margin-top:10px}
+.opt{padding:10px 20px;border:3px solid #E0E0E0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#9C27B0;transform:scale(1.05)}
+.opt.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.opt.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🧩 三角拼图</h1>
+    <p>三角形内角和 · 四年级</p>
+    <div class="puzzle-preview">🧩🔺📐</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">三个角拼在一起等于180度<br>求出缺失的角度！共10关</p>
+    <button class="btn" onclick="startGame()">开始拼图 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">求出三角形中缺失的角度</div>
+      <div class="puzzle-area" id="pa">
+        <div class="target-triangle" id="tt"></div>
+      </div>
+      <div class="sum-display" id="sd2">角度之和 = <span class="total" id="total">?</span>°</div>
+      <div class="angle-pieces-tray" id="apt"></div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 拼图完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,1);
+    let a1,a2,a3,missing,question;
+    if(type===0){
+      // Two known, find third
+      a1=rand(20,80);a2=rand(20,180-a1-10);
+      a3=180-a1-a2;
+      if(a3<=0||a3>=180){a2=rand(10,Math.min(80,180-a1-20));a3=180-a1-a2;}
+      missing=a3;
+      question=`已知两个角分别是 ${a1}° 和 ${a2}°，第三个角是多少度？`;
+    }else{
+      // One known, find one (equilateral or isosceles hint)
+      if(Math.random()<0.5){
+        // Isosceles
+        a1=rand(30,80);a2=a1;a3=180-2*a1;
+        if(a3<=0){a1=rand(20,60);a2=a1;a3=180-2*a1;}
+        missing=a3;
+        question=`等腰三角形的一个底角是 ${a1}°，顶角是多少度？`;
+      }else{
+        a1=rand(30,100);a2=rand(20,180-a1-10);
+        a3=180-a1-a2;
+        if(a3<=0){a2=rand(10,Math.min(80,179-a1));a3=180-a1-a2;}
+        missing=a3;
+        question=`三角形中，一个角是 ${a1}°，另一个角是 ${a2}°，第三个角是？`;
+      }
+    }
+    const wrongs=generateWrongs(missing);
+    r.push({a1,a2,a3,missing,question,options:[missing,...wrongs].sort(()=>Math.random()-0.5)});
+  }
+  return r;
+}
+
+function generateWrongs(correct){
+  const wrongs=new Set();
+  while(wrongs.size<3){
+    const off=rand(1,15)*(Math.random()<0.5?1:-1);
+    const w=correct+off;
+    if(w>0&&w<180&&w!==correct)wrongs.add(w);
+  }
+  return [...wrongs].slice(0,3);
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function drawTriangle(a1,a2,a3){
+  const tt=document.getElementById('tt');
+  tt.innerHTML=`<svg viewBox="0 0 120 100">
+    <polygon points="60,5 5,95 115,95" fill="none" stroke="#9C27B0" stroke-width="3"/>
+    <text x="60" y="25" text-anchor="middle" font-size="12" fill="#e74c3c" font-weight="bold">${a1}°</text>
+    <text x="20" y="90" text-anchor="middle" font-size="12" fill="#3498db" font-weight="bold">${a2}°</text>
+    <text x="100" y="90" text-anchor="middle" font-size="12" fill="#2ecc71" font-weight="bold">${a3}°</text>
+  </svg>`;
+}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('total').textContent='?';
+  drawTriangle(q.a1,q.a2,'?');
+  // Angle pieces tray
+  const apt=document.getElementById('apt');
+  apt.innerHTML='';
+  const colors=['#e74c3c','#3498db','#2ecc71'];
+  const angles=[q.a1,q.a2,q.missing];
+  angles.forEach((a,i)=>{
+    const p=document.createElement('div');
+    p.className='tray-piece';
+    p.style.background=colors[i];
+    p.textContent=a+'°';
+    p.style.animationDelay=(i*0.2)+'s';
+    apt.appendChild(p);
+  });
+  // Options
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o+'°';
+    d.onclick=()=>pick(o,d,q);
+    opts.appendChild(d);
+  });
+}
+
+function pick(val,el,q){
+  if(ans)return;
+  ans=true;
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q.missing){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent=`✅ 正确！${q.a1}° + ${q.a2}° + ${q.missing}° = 180°`;
+    document.getElementById('total').textContent='180';
+    document.getElementById('total').style.color='#4CAF50';
+    drawTriangle(q.a1,q.a2,q.missing);
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent=`❌ 不对哦！正确答案是 ${q.missing}°。${q.a1}+${q.a2}+${q.missing}=180`;
+  }
+  setTimeout(()=>{
+    document.getElementById('total').style.color='#6A1B9A';
+    rd++;next();
+  },2200);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 拼图大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

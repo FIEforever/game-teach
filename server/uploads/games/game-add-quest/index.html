@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加法寻宝 - 加法运算定律应用</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#2c3e50 0%,#3498db 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.treasure{font-size:48px;margin:16px 0;animation:glow 2s ease-in-out infinite}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+.btn{background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.2);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,#f39c12,#e74c3c);border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);min-height:420px}
+.qb{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#E65100;line-height:1.6}
+.map{width:100%;height:180px;background:linear-gradient(135deg,#C8E6C9,#A5D6A7);border-radius:16px;margin:12px 0;position:relative;overflow:hidden;border:3px solid #66BB6A}
+.map::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 18px,rgba(0,0,0,0.03) 18px,rgba(0,0,0,0.03) 20px),repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(0,0,0,0.03) 18px,rgba(0,0,0,0.03) 20px)}
+.path{position:absolute;display:flex;align-items:center;gap:4px}
+.chest{font-size:32px;cursor:pointer;transition:all .3s;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))}
+.chest:hover{transform:scale(1.2)}
+.chest.opened{animation:chestOpen .5s}
+@keyframes chestOpen{0%{transform:scale(1)}50%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
+.chest.correct-chest{filter:drop-shadow(0 0 10px #4CAF50)}
+.chest.wrong-chest{filter:drop-shadow(0 0 10px #f44336);animation:shake .5s}
+.player{font-size:28px;position:absolute;transition:all 1s ease-in-out}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tree{position:absolute;font-size:20px;opacity:0.6}
+.paths-display{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.path-option{padding:10px 16px;border:3px solid #E0E0E0;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;background:#FAFAFA}
+.path-option:hover{border-color:#f39c12;transform:scale(1.05)}
+.path-option.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.path-option.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.path-option.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0;color:#f39c12}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🗺️ 加法寻宝</h1>
+    <p>加法运算定律应用 · 四年级</p>
+    <div class="treasure">💎</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">运用加法运算定律<br>找到最快的寻宝路线！共10关</p>
+    <button class="btn" onclick="startGame()">开始寻宝 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>💎 <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">选择最快的计算路径！</div>
+      <div class="map" id="map">
+        <div class="tree" style="top:10%;left:15%">🌳</div>
+        <div class="tree" style="top:60%;left:80%">🌲</div>
+        <div class="tree" style="top:30%;left:60%">🌿</div>
+        <div class="player" id="player" style="top:80%;left:10%">🧭</div>
+      </div>
+      <div class="paths-display" id="paths"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 寻宝结束！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,3);
+    let question,correct,explanation;
+    if(type===0){
+      // Commutative shortcut
+      const a=rand(100,400),b=rand(100,300),c=rand(100,300);
+      // Make a+c a round number
+      const target=Math.ceil(a/100)*100;
+      const c2=target-a;
+      if(c2>0&&c2<500){
+        const ans=a+c2+b;
+        correct=`${a} + ${c2} + ${b} = ${ans}（先凑整${target}）`;
+        const wrong1=`${a} + ${b} + ${c2} = ${ans}（没有凑整）`;
+        const wrong2=`${b} + ${a} + ${c2} = ${ans}（没有凑整）`;
+        const wrong3=`${c2} + ${b} + ${a} = ${ans}（没有凑整）`;
+        question=`计算 ${a} + ${b} + ${c2}，怎样算最快？`;
+        r.push({question,correct,options:[correct,wrong1,wrong2,wrong3].sort(()=>Math.random()-0.5),explanation:`${a}+${c2}=${target}，是整百数，先算更方便！`});
+        continue;
+      }
+    }
+    if(type===1){
+      // Associative shortcut
+      const a=rand(50,200),b=rand(50,200);
+      const sum=a+b;
+      const c=rand(50,200);
+      const total=sum+c;
+      correct=`(${a} + ${b}) + ${c} = ${total}`;
+      const wrong1=`${a} + (${b} + ${c}) = ${total}（一样快）`;
+      const wrong2=`${c} + ${a} + ${b} = ${total}（顺序不对）`;
+      const wrong3=`${a} - ${b} + ${c} = ${a-b+c}（运算错误）`;
+      question=`计算 ${a} + ${b} + ${c}，哪种方法最快？`;
+      r.push({question,correct,options:[correct,wrong1,wrong2,wrong3].sort(()=>Math.random()-0.5),explanation:`先算${a}+${b}=${sum}，再加${c}=${total}`});
+    }else if(type===2){
+      const a=rand(100,500),b=rand(100,500);
+      const commResult=a+b;
+      correct=`${a} + ${b} = ${b} + ${a} = ${commResult}（交换律）`;
+      const wrong1=`${a} + ${b} = ${commResult}，不能交换`;
+      const wrong2=`${a} + ${b} ≠ ${b} + ${a}`;
+      const wrong3=`${a} × ${b} = ${a*b}（乘法了）`;
+      question=`${a} + ${b} 和 ${b} + ${a} 的关系是？`;
+      r.push({question,correct,options:[correct,wrong1,wrong2,wrong3].sort(()=>Math.random()-0.5),explanation:`加法交换律：两个数相加，交换加数的位置，和不变。`});
+    }else{
+      const a=rand(100,300),b=rand(100,300),c=rand(100,300),d=rand(100,300);
+      const s1=a+c,s2=b+d;
+      const total=s1+s2;
+      correct=`(${a}+${c})+(${b}+${d}) = ${total}（凑整计算）`;
+      const wrong1=`${a}+${b}+${c}+${d} = ${total}（从左到右）`;
+      const wrong2=`(${a}+${b})+(${c}+${d}) = ${total}（没有凑整）`;
+      const wrong3=`${d}+${c}+${b}+${a} = ${total}（倒序计算）`;
+      question=`计算 ${a}+${b}+${c}+${d}，怎样算最快？`;
+      r.push({question,correct,options:[correct,wrong1,wrong2,wrong3].sort(()=>Math.random()-0.5),explanation:`把能凑整的数放在一起算更方便！`});
+    }
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('player').style.top='80%';
+  document.getElementById('player').style.left='10%';
+  // Place treasure chest
+  const map=document.getElementById('map');
+  map.querySelectorAll('.chest').forEach(c=>c.remove());
+  const chest=document.createElement('div');
+  chest.className='chest';
+  chest.textContent='📦';
+  chest.style.position='absolute';
+  chest.style.top='20%';
+  chest.style.left='75%';
+  map.appendChild(chest);
+  // Render path options
+  const paths=document.getElementById('paths');
+  paths.innerHTML='';
+  q.options.forEach(opt=>{
+    const p=document.createElement('div');
+    p.className='path-option';
+    p.textContent=opt;
+    p.onclick=()=>pickAnswer(opt,p);
+    paths.appendChild(p);
+  });
+}
+
+function pickAnswer(val,el){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.path-option').forEach(p=>p.classList.add('disabled'));
+  if(val===q.correct){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 找到宝藏了！'+q.explanation;
+    document.getElementById('player').style.top='20%';
+    document.getElementById('player').style.left='70%';
+    document.querySelector('.chest').classList.add('correct-chest');
+    document.querySelector('.chest').classList.add('opened');
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ 走错路了！'+q.explanation;
+    document.querySelector('.chest').classList.add('wrong-chest');
+  }
+  setTimeout(()=>{rd++;next()},2200);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 寻宝大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

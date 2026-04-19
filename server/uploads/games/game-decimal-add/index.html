@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小数超市 - 小数加减法不进位</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#f5af19 0%,#f12711 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.shop-preview{font-size:48px;margin:16px 0;animation:shopBounce 2s ease-in-out infinite}
+@keyframes shopBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.btn{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#2E7D32;line-height:1.6}
+.shop-shelf{display:flex;gap:10px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+.item{width:90px;padding:10px;background:#FFF8E1;border:2px solid #FFB74D;border-radius:12px;text-align:center;transition:all .3s}
+.item:hover{transform:scale(1.05);border-color:#E65100}
+.item .emoji{font-size:32px}
+.item .name{font-size:12px;color:#795548;margin:4px 0}
+.item .price{font-size:16px;font-weight:800;color:#E65100}
+.cart{background:#F5F5F5;border-radius:12px;padding:12px;margin:10px 0}
+.cart-title{font-size:14px;font-weight:700;color:#333;margin-bottom:8px}
+.cart-items{font-size:14px;color:#666;line-height:1.8}
+.cart-total{font-size:18px;font-weight:800;color:#E65100;margin-top:8px;padding-top:8px;border-top:2px dashed #E0E0E0}
+.input-area{display:flex;gap:8px;align-items:center;justify-content:center;margin:10px 0}
+.answer-input{width:120px;padding:10px;border:3px solid #E0E0E0;border-radius:12px;font-size:20px;font-weight:700;text-align:center;outline:none;transition:border-color .2s}
+.answer-input:focus{border-color:#27ae60}
+.submit-btn{padding:10px 20px;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .2s}
+.submit-btn:hover{transform:scale(1.05)}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🛒 小数超市</h1>
+    <p>小数加减法（不进位）· 四年级</p>
+    <div class="shop-preview">🛒🏪💰</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">在超市购物，计算商品价格<br>小数加减法不进位！共10关</p>
+    <button class="btn" onclick="startGame()">开始购物 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>💰 <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">计算商品的总价</div>
+      <div class="shop-shelf" id="shelf"></div>
+      <div class="cart" id="cart"></div>
+      <div class="input-area">
+        <span style="font-size:16px;font-weight:700">=</span>
+        <input type="number" class="answer-input" id="ansIn" step="0.1" placeholder="?">
+        <span style="font-size:16px;font-weight:700">元</span>
+        <button class="submit-btn" onclick="submit()">确认</button>
+      </div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 购物结束！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const items=[
+    {emoji:'🍎',name:'苹果'},{emoji:'📚',name:'笔记本'},{emoji:'✏️',name:'铅笔'},
+    {emoji:'🧸',name:'玩具'},{emoji:'🍪',name:'饼干'},{emoji:'🥤',name:'果汁'},
+    {emoji:'🎨',name:'画笔'},{emoji:'📏',name:'尺子'},{emoji:'🎈',name:'气球'},
+    {emoji:'🧴',name:'橡皮'},{emoji:'🍬',name:'糖果'},{emoji:'🍞',name:'面包'}
+  ];
+  for(let i=0;i<T;i++){
+    const type=Math.random()<0.5?'add':'sub';
+    const item1=items[rand(0,items.length-1)];
+    const item2=items[rand(0,items.length-1)];
+    let p1,p2,answer,question;
+    if(type==='add'){
+      // No carry: digits don't exceed 9
+      const d1=rand(1,8),d2=rand(1,8);
+      p1=d1+rand(1,5)/10;
+      p2=d2+rand(1,5)/10;
+      // Ensure no carry in tenths
+      const t1=Math.round((p1%1)*10),t2=Math.round((p2%1)*10);
+      if(t1+t2>=10){p2=d2+rand(1,9-t1)/10;}
+      answer=Math.round((p1+p2)*10)/10;
+      question=`买一个${item1.name}(${p1}元)和一个${item2.name}(${p2}元)，一共多少元？`;
+    }else{
+      const big=rand(3,9)+rand(1,5)/10;
+      const small=rand(1,Math.floor(big)-1)+rand(1,5)/10;
+      if(small>=big)small=big-1;
+      p1=big;p2=small;
+      answer=Math.round((big-small)*10)/10;
+      question=`一个${item1.name}${big}元，一个${item2.name}${small}元，贵多少元？`;
+    }
+    r.push({type,item1,item2,p1,p2,answer,question});
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('ansIn').value='';
+  // Shelf
+  const shelf=document.getElementById('shelf');
+  shelf.innerHTML=`
+    <div class="item"><div class="emoji">${q.item1.emoji}</div><div class="name">${q.item1.name}</div><div class="price">${q.p1}元</div></div>
+    <div class="item"><div class="emoji">${q.item2.emoji}</div><div class="name">${q.item2.name}</div><div class="price">${q.p2}元</div></div>
+  `;
+  // Cart
+  const cart=document.getElementById('cart');
+  const op=q.type==='add'?'+':'-';
+  cart.innerHTML=`
+    <div class="cart-title">🛒 购物车</div>
+    <div class="cart-items">${q.item1.name}: ${q.p1}元 ${op} ${q.item2.name}: ${q.p2}元</div>
+    <div class="cart-total">合计: ? 元</div>
+  `;
+}
+
+function submit(){
+  if(ans)return;
+  const input=document.getElementById('ansIn');
+  const val=parseFloat(input.value);
+  if(isNaN(val)){input.style.borderColor='#f44336';return;}
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  if(Math.abs(val-q.answer)<0.01){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    fb.className='fb show ok';
+    fb.textContent=`✅ 正确！${q.p1} ${q.type==='add'?'+':'-'} ${q.p2} = ${q.answer} 元`;
+    document.querySelector('.cart-total').textContent='合计: '+q.answer+' 元';
+    document.querySelector('.cart-total').style.color='#4CAF50';
+  }else{
+    fb.className='fb show no';
+    fb.textContent=`❌ 不对哦！正确答案是 ${q.answer} 元`;
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 购物达人！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+
+document.getElementById('ansIn').addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+</script>
+</body>
+</html>

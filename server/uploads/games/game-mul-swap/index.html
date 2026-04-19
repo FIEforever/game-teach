@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乘法配对 - 乘法交换律结合律</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.cards-preview{font-size:48px;margin:16px 0;animation:cardFlip 2s ease-in-out infinite}
+@keyframes cardFlip{0%,100%{transform:rotateY(0deg)}50%{transform:rotateY(180deg)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.2);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);min-height:420px}
+.qb{background:linear-gradient(135deg,#EDE7F6,#D1C4E9);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#4527A0}
+.cards-area{display:flex;gap:20px;justify-content:center;margin:20px 0;align-items:center}
+.card{width:120px;height:160px;perspective:600px;cursor:pointer}
+.card-inner{width:100%;height:100%;position:relative;transition:transform .6s;transform-style:preserve-3d}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.card-front,.card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;padding:10px;text-align:center;line-height:1.4}
+.card-front{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 4px 15px rgba(102,126,234,0.4)}
+.card-back{background:linear-gradient(135deg,#fff,#f0f0f0);color:#333;border:3px solid #667eea;transform:rotateY(180deg);box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+.card.matched{opacity:0.5;pointer-events:none}
+.card.matched .card-back{border-color:#4CAF50;background:#E8F5E9}
+.vs{font-size:28px;font-weight:800;color:#764ba2}
+.match-info{font-size:14px;color:#666;margin:10px 0;padding:8px;background:#F5F5F5;border-radius:8px}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🃏 乘法配对</h1>
+    <p>乘法交换律和结合律 · 四年级</p>
+    <div class="cards-preview">🃏🎴🂠</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">翻开卡片，找出相等的<br>乘法算式进行配对！共10关</p>
+    <button class="btn" onclick="startGame()">开始配对 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">翻开两张卡片，找出相等的乘法算式</div>
+      <div class="cards-area" id="ca"></div>
+      <div class="match-info" id="mi">点击卡片翻开，找出结果相等的算式</div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 配对完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],flipped=[],matched=0,canFlip=true;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,2);
+    let expr1,expr2,result,lawName;
+    if(type===0){
+      // Commutative: a×b = b×a
+      const a=rand(3,12),b=rand(3,12);
+      result=a*b;
+      expr1=`${a} × ${b}`;expr2=`${b} × ${a}`;
+      lawName='交换律';
+    }else if(type===1){
+      // Associative: (a×b)×c = a×(b×c)
+      const a=rand(2,6),b=rand(2,6),c=rand(2,6);
+      result=a*b*c;
+      expr1=`(${a}×${b})×${c}`;expr2=`${a}×(${b}×${c})`;
+      lawName='结合律';
+    }else{
+      // Mixed: a×b×c = c×a×b
+      const a=rand(2,8),b=rand(2,8),c=rand(2,8);
+      result=a*b*c;
+      expr1=`${a}×${b}×${c}`;expr2=`${c}×${a}×${b}`;
+      lawName='交换律';
+    }
+    // Generate wrong pairs
+    const wrongs=[];
+    while(wrongs.length<2){
+      const wa=rand(2,9),wb=rand(2,9);
+      const wr=wa*wb;
+      if(wr!==result)wrongs.push(`${wa} × ${wb}`);
+    }
+    r.push({expr1,expr2,result,lawName,wrongs});
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  flipped=[];matched=0;canFlip=true;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('qb').textContent=`找出相等的乘法算式（${q.lawName}）`;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('mi').textContent='点击卡片翻开，找出结果相等的算式';
+  // Create 4 cards: 2 correct pair + 2 wrong
+  const cards=[
+    {expr:q.expr1,result:q.result,isMatch:true},
+    {expr:q.expr2,result:q.result,isMatch:true},
+    {expr:q.wrongs[0],result:eval(q.wrongs[0].replace(/×/g,'*')),isMatch:false},
+    {expr:q.wrongs[1],result:eval(q.wrongs[1].replace(/×/g,'*')),isMatch:false}
+  ].sort(()=>Math.random()-0.5);
+  const ca=document.getElementById('ca');
+  ca.innerHTML='<div class="vs">VS</div>';
+  cards.forEach((c,idx)=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.dataset.idx=idx;
+    card.innerHTML=`<div class="card-inner"><div class="card-front">🃏<br><span style="font-size:12px">点击翻开</span></div><div class="card-back">${c.expr}<br><span style="font-size:13px;color:#999">= ${c.result}</span></div></div>`;
+    card.onclick=()=>flipCard(card,c);
+    ca.insertBefore(card,ca.querySelector('.vs'));
+  });
+}
+
+function flipCard(card,cardData){
+  if(!canFlip||card.classList.contains('flipped')||card.classList.contains('matched'))return;
+  card.classList.add('flipped');
+  flipped.push({card,data:cardData});
+  if(flipped.length===2){
+    canFlip=false;
+    setTimeout(checkMatch,800);
+  }
+}
+
+function checkMatch(){
+  const [f1,f2]=flipped;
+  const fb=document.getElementById('fb');
+  if(f1.data.result===f2.data.result&&f1.data.isMatch&&f2.data.isMatch){
+    f1.card.classList.add('matched');
+    f2.card.classList.add('matched');
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    fb.className='fb show ok';
+    fb.textContent=`✅ 配对成功！${f1.data.expr} = ${f2.data.expr} = ${f1.data.result}（${qs[rd].lawName}）`;
+    document.getElementById('mi').textContent=`${f1.data.expr} = ${f2.data.expr} = ${f1.data.result}`;
+    setTimeout(()=>{rd++;next()},2000);
+  }else{
+    fb.className='fb show no';
+    fb.textContent='❌ 这两个算式不相等，再试试！';
+    setTimeout(()=>{
+      f1.card.classList.remove('flipped');
+      f2.card.classList.remove('flipped');
+      flipped=[];canFlip=true;
+      fb.className='fb';
+    },1000);
+  }
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 配对大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

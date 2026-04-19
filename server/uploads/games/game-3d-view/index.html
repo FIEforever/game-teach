@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D观察家 - 观察物体</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:30px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.shapes-preview{font-size:48px;margin:16px 0;animation:rotate3d 4s ease-in-out infinite}
+@keyframes rotate3d{0%,100%{transform:perspective(200px) rotateY(0deg)}50%{transform:perspective(200px) rotateY(30deg)}}
+.btn{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#EDE7F6,#D1C4E9);border-radius:16px;padding:14px;margin-bottom:14px;font-size:16px;font-weight:700;color:#4527A0}
+.shape-3d{width:160px;height:160px;margin:16px auto;perspective:400px;cursor:grab}
+.shape-3d:active{cursor:grabbing}
+.shape-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s}
+/* CSS 3D shapes */
+.cube{width:120px;height:120px;position:relative;margin:20px auto;transform-style:preserve-3d;animation:cubeRotate 8s linear infinite}
+.cube .face{position:absolute;width:120px;height:120px;border:3px solid rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border-radius:8px}
+.cube .front{background:rgba(231,76,60,0.8);transform:translateZ(60px)}
+.cube .back{background:rgba(46,204,113,0.8);transform:rotateY(180deg) translateZ(60px)}
+.cube .left{background:rgba(52,152,219,0.8);transform:rotateY(-90deg) translateZ(60px)}
+.cube .right{background:rgba(241,196,15,0.8);transform:rotateY(90deg) translateZ(60px)}
+.cube .top{background:rgba(155,89,182,0.8);transform:rotateX(90deg) translateZ(60px)}
+.cube .bottom{background:rgba(230,126,34,0.8);transform:rotateX(-90deg) translateZ(60px)}
+@keyframes cubeRotate{from{transform:rotateX(-20deg) rotateY(0deg)}to{transform:rotateX(-20deg) rotateY(360deg)}}
+.view-btns{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.view-btn{padding:8px 16px;border:2px solid #D1C4E9;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:#fff;color:#4527A0}
+.view-btn:hover,.view-btn.active{background:#4527A0;color:#fff;border-color:#4527A0}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.ans-card{padding:12px;border:3px solid #E0E0E0;border-radius:14px;cursor:pointer;transition:all .3s;background:#FAFAFA}
+.ans-card:hover{border-color:#6c5ce7;transform:scale(1.03)}
+.ans-card .label{font-size:12px;color:#999;margin-bottom:6px}
+.ans-card .grid{display:grid;gap:2px}
+.ans-card .cell{width:100%;aspect-ratio:1;border-radius:2px}
+.ans-card.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.ans-card.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.ans-card.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🔍 3D观察家</h1>
+    <p>观察物体 · 四年级</p>
+    <div class="shapes-preview">📦🔺🔷</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">旋转3D图形，从不同角度观察<br>选出正确的视图！共10关</p>
+    <button class="btn" onclick="startGame()">开始观察 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">从正面看，这个图形是什么样子的？</div>
+      <div class="shape-3d" id="shape3d">
+        <div class="cube" id="cube">
+          <div class="face front">前</div>
+          <div class="face back">后</div>
+          <div class="face left">左</div>
+          <div class="face right">右</div>
+          <div class="face top">上</div>
+          <div class="face bottom">下</div>
+        </div>
+      </div>
+      <div class="view-btns">
+        <button class="view-btn active" onclick="setView('front')">正面</button>
+        <button class="view-btn" onclick="setView('top')">上面</button>
+        <button class="view-btn" onclick="setView('side')">侧面</button>
+        <button class="view-btn" onclick="setView('rotate')">旋转</button>
+      </div>
+      <div class="answer-grid" id="ag"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 观察结束！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const shapes=[
+    {name:'正方体',view:'front',correct:[[1,1],[1,1]],wrong1:[[1],[1]],wrong2:[[1,1,1]],wrong3:[[1,0],[0,1]]},
+    {name:'长方体',view:'front',correct:[[1,1,1],[1,1,1]],wrong1:[[1,1],[1,1]],wrong2:[[1],[1],[1]],wrong3:[[1,1,1],[1,0,1]]},
+    {name:'L形',view:'front',correct:[[1,0],[1,1]],wrong1:[[1,1],[0,1]],wrong2:[[1,1],[1,1]],wrong3:[[1],[1]]},
+    {name:'T形',view:'front',correct:[[1,1,1],[0,1,0]],wrong1:[[1,0,1],[1,1,1]],wrong2:[[1,1],[1,1]],wrong3:[[1,1,1],[1,0,1]]},
+    {name:'阶梯形',view:'front',correct:[[1,0,0],[1,1,0],[1,1,1]],wrong1:[[1,1,1],[0,1,1],[0,0,1]],wrong2:[[1,1],[1,1],[1,1]],wrong3:[[1,0],[1,1],[0,1]]},
+    {name:'十字形',view:'front',correct:[[0,1,0],[1,1,1],[0,1,0]],wrong1:[[1,1,1],[1,0,1],[1,1,1]],wrong2:[[1,0,1],[0,1,0],[1,0,1]],wrong3:[[0,1,0],[1,0,1],[0,1,0]]},
+    {name:'正方体',view:'top',correct:[[1,1],[1,1]],wrong1:[[1],[1]],wrong2:[[1,1,1]],wrong3:[[1,0],[0,1]]},
+    {name:'长方体',view:'top',correct:[[1,1,1],[1,1,1]],wrong1:[[1,1],[1,1]],wrong2:[[1],[1],[1]],wrong3:[[1,1,1],[1,0,1]]},
+    {name:'L形',view:'side',correct:[[1,1],[1,0]],wrong1:[[1,1],[0,1]],wrong2:[[1,0],[1,1]],wrong3:[[1,1],[1,1]]},
+    {name:'阶梯形',view:'side',correct:[[1,1,1],[0,1,1],[0,0,1]],wrong1:[[1,0,0],[1,1,0],[1,1,1]],wrong2:[[1,1],[1,1],[1,1]],wrong3:[[1,1,1],[1,1,1],[1,1,1]]},
+  ];
+  const shuffled=shapes.sort(()=>Math.random()-0.5);
+  for(let i=0;i<T;i++){
+    const s=shuffled[i%shuffled.length];
+    const viewNames={front:'正面',top:'上面',side:'侧面'};
+    r.push({
+      name:s.name,
+      view:s.view,
+      viewName:viewNames[s.view],
+      question:`从${viewNames[s.view]}看这个"${s.name}"，是什么样子？`,
+      correct:s.correct,
+      options:[s.correct,s.wrong1,s.wrong2,s.wrong3].sort(()=>Math.random()-0.5)
+    });
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function setView(view){
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  const cube=document.getElementById('cube');
+  cube.style.animation='none';
+  switch(view){
+    case 'front':cube.style.transform='rotateX(-20deg) rotateY(0deg)';break;
+    case 'top':cube.style.transform='rotateX(-70deg) rotateY(0deg)';break;
+    case 'side':cube.style.transform='rotateX(-20deg) rotateY(-90deg)';break;
+    case 'rotate':cube.style.animation='cubeRotate 8s linear infinite';break;
+  }
+}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  // Reset view
+  document.querySelectorAll('.view-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  const cube=document.getElementById('cube');
+  cube.style.animation='cubeRotate 8s linear infinite';
+  // Render answer options
+  const ag=document.getElementById('ag');
+  ag.innerHTML='';
+  const labels=['A','B','C','D'];
+  q.options.forEach((opt,idx)=>{
+    const card=document.createElement('div');
+    card.className='ans-card';
+    const rows=opt.length;
+    const cols=opt[0].length;
+    let gridHtml=`<div class="label">选项 ${labels[idx]}</div><div class="grid" style="grid-template-columns:repeat(${cols},1fr)">`;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const color=opt[r][c]?'#6c5ce7':'#E8EAF6';
+        gridHtml+=`<div class="cell" style="background:${color}"></div>`;
+      }
+    }
+    gridHtml+='</div>';
+    card.innerHTML=gridHtml;
+    card.onclick=()=>pickAnswer(opt,card);
+    ag.appendChild(card);
+  });
+}
+
+function pickAnswer(opt,el){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.ans-card').forEach(c=>c.classList.add('disabled'));
+  const isCorrect=JSON.stringify(opt)===JSON.stringify(q.correct);
+  if(isCorrect){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 太棒了！你选对了！';
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ 再仔细看看哦！';
+  }
+  setTimeout(()=>{rd++;next()},1800);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 观察大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

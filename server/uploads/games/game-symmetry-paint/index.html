@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>对称画板 - 轴对称</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#ff9a9e 0%,#fad0c4 50%,#ffecd2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.paint-preview{font-size:48px;margin:16px 0;animation:paintBrush 2s ease-in-out infinite}
+@keyframes paintBrush{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-15deg)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#FCE4EC,#F8BBD0);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#C62828}
+.canvas-area{position:relative;margin:12px 0}
+.canvas{width:100%;height:250px;background:#FAFAFA;border:2px solid #E0E0E0;border-radius:16px;position:relative;overflow:hidden;cursor:crosshair}
+.axis-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#e74c3c;z-index:1;border-left:1px dashed #e74c3c}
+.axis-label{position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:11px;color:#e74c3c;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 6px;border-radius:4px}
+.dot{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);z-index:3;transition:all .3s;cursor:pointer}
+.dot:hover{transform:translate(-50%,-50%) scale(1.3)}
+.dot.left{background:#3498db}
+.dot.right{background:#e74c3c}
+.dot.mirror{opacity:0.5;border:2px dashed #e74c3c;background:transparent}
+.dot.target{background:#2ecc71;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}
+.color-palette{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.color-btn{width:30px;height:30px;border-radius:50%;border:3px solid #fff;cursor:pointer;transition:transform .2s;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+.color-btn:hover{transform:scale(1.2)}
+.color-btn.active{border-color:#333;transform:scale(1.2)}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{padding:12px;border:3px solid #E0E0E0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#e74c3c;transform:scale(1.03)}
+.opt.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse2 .5s}
+.opt.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🎨 对称画板</h1>
+    <p>轴对称 · 四年级</p>
+    <div class="paint-preview">🎨🖼️✨</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">找出图形的对称轴<br>完成对称图形！共10关</p>
+    <button class="btn" onclick="startGame()">开始绘画 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">找出对称点的位置</div>
+      <div class="canvas-area">
+        <div class="canvas" id="canvas">
+          <div class="axis-line" id="axisLine"></div>
+          <div class="axis-label" id="axisLabel">对称轴</div>
+        </div>
+      </div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 绘画完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,2);
+    let question,correct,wrongs,explanation;
+    if(type===0){
+      // Find mirror point on vertical axis
+      const x=rand(10,40);
+      const y=rand(10,80);
+      const mirrorX=100-x;
+      correct={`(${mirrorX}, ${y})`;
+      wrongs=[`(${x}, ${100-y})`,`(${mirrorX}, ${100-y})`,`(${x}, ${y})`];
+      question=`点 (${x}, ${y}) 关于对称轴的对称点是？`;
+      explanation=`关于垂直对称轴，x坐标变为 ${100-x}，y坐标不变`;
+    }else if(type===1){
+      // How many axes of symmetry
+      const shapes=[
+        {name:'正方形',axes:4},{name:'长方形',axes:2},{name:'等边三角形',axes:3},
+        {name:'等腰三角形',axes:1},{name:'圆形',axes:'无数条'},{name:'正五边形',axes:5}
+      ];
+      const s=shapes[rand(0,shapes.length-1)];
+      correct=String(s.axes);
+      wrongs=['1','2','3','4','无数条'].filter(w=>w!==correct).sort(()=>Math.random()-0.5).slice(0,3);
+      question=`${s.name}有几条对称轴？`;
+      explanation=`${s.name}有 ${s.axes} 条对称轴`;
+    }else{
+      // Is it symmetric?
+      const isSymmetric=Math.random()<0.5;
+      const shapes=isSymmetric?
+        ['蝴蝶','心形','正方形','等边三角形']:
+        ['平行四边形','不规则四边形','L形','梯形'];
+      const s=shapes[rand(0,shapes.length-1)];
+      correct=isSymmetric?'是':'不是';
+      wrongs=isSymmetric?['不是','不确定']:['是','不确定'];
+      question=`${s}是轴对称图形吗？`;
+      explanation=`${s}${isSymmetric?'是':'不是'}轴对称图形`;
+    }
+    r.push({question,correct,wrongs,explanation,options:[correct,...wrongs].sort(()=>Math.random()-0.5)});
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  // Clear canvas
+  const canvas=document.getElementById('canvas');
+  canvas.querySelectorAll('.dot').forEach(d=>d.remove());
+  // Draw some decorative dots
+  for(let i=0;i<6;i++){
+    const dot=document.createElement('div');
+    dot.className='dot left';
+    dot.style.left=rand(5,40)+'%';
+    dot.style.top=rand(10,85)+'%';
+    canvas.appendChild(dot);
+    // Mirror
+    const mirror=document.createElement('div');
+    mirror.className='dot right';
+    mirror.style.left=(100-parseInt(dot.style.left))+'%';
+    mirror.style.top=dot.style.top;
+    canvas.appendChild(mirror);
+  }
+  // Options
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o;
+    d.onclick=()=>pick(o,d,q);
+    opts.appendChild(d);
+  });
+}
+
+function pick(val,el,q){
+  if(ans)return;
+  ans=true;
+  const q2=qs[rd];
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q2.correct){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 正确！'+q2.explanation;
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ '+q2.explanation;
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 绘画大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

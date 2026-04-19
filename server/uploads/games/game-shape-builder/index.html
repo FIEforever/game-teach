@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>积木建筑师 - 观察立体图形</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:30px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.preview{font-size:48px;margin:16px 0;animation:buildUp 2s ease-in-out infinite}
+@keyframes buildUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#FCE4EC,#F8BBD0);border-radius:16px;padding:14px;margin-bottom:14px;font-size:16px;font-weight:700;color:#C62828}
+.iso-view{width:200px;height:200px;margin:12px auto;position:relative;background:#F5F5F5;border-radius:16px;overflow:hidden}
+.iso-grid{display:grid;gap:2px;padding:10px;width:100%;height:100%;align-content:center;justify-content:center}
+.iso-block{border-radius:4px;transition:all .3s;animation:blockIn .4s ease-out}
+.iso-block.color1{background:linear-gradient(135deg,#FF6B6B,#ee5a24)}
+.iso-block.color2{background:linear-gradient(135deg,#48dbfb,#0abde3)}
+.iso-block.color3{background:linear-gradient(135deg,#feca57,#ff9f43)}
+.iso-block.color4{background:linear-gradient(135deg,#a29bfe,#6c5ce7)}
+@keyframes blockIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.angle-tabs{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.angle-tab{padding:8px 16px;border:2px solid #F8BBD0;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:#fff;color:#C62828}
+.angle-tab:hover,.angle-tab.active{background:#C62828;color:#fff;border-color:#C62828}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.ans-card{padding:10px;border:3px solid #E0E0E0;border-radius:14px;cursor:pointer;transition:all .3s;background:#FAFAFA}
+.ans-card:hover{border-color:#e74c3c;transform:scale(1.03)}
+.ans-card .label{font-size:12px;color:#999;margin-bottom:4px}
+.ans-card .grid{display:grid;gap:1px}
+.ans-card .cell{aspect-ratio:1;border-radius:2px}
+.ans-card.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.ans-card.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.ans-card.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🧱 积木建筑师</h1>
+    <p>观察立体图形 · 四年级</p>
+    <div class="preview">🧱🏗️</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">观察积木搭建的立体图形<br>选出从不同角度看到的形状！共10关</p>
+    <button class="btn" onclick="startGame()">开始搭建 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">从正面看，这个积木是什么形状？</div>
+      <div class="iso-view" id="isoView"></div>
+      <div class="angle-tabs">
+        <button class="angle-tab active" onclick="setAngle(0,this)">正面</button>
+        <button class="angle-tab" onclick="setAngle(1,this)">上面</button>
+        <button class="angle-tab" onclick="setAngle(2,this)">左面</button>
+      </div>
+      <div class="answer-grid" id="ag"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 建造完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false,currentAngle=0;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const structures=[
+    {
+      blocks:[[1,1],[1,1]],
+      colors:[[1,1],[2,2]],
+      views:[
+        {angle:'正面',grid:[[1,1],[1,1]]},
+        {angle:'上面',grid:[[1,1],[1,1]]},
+        {angle:'左面',grid:[[1,1],[1,1]]}
+      ]
+    },
+    {
+      blocks:[[1,0,1],[1,1,1]],
+      colors:[[1,0,2],[3,4,3]],
+      views:[
+        {angle:'正面',grid:[[1,0,1],[1,1,1]]},
+        {angle:'上面',grid:[[1,1,1],[1,1,1]]},
+        {angle:'左面',grid:[[1,1],[1,1]]}
+      ]
+    },
+    {
+      blocks:[[1,1,0],[0,1,1]],
+      colors:[[1,2,0],[0,3,4]],
+      views:[
+        {angle:'正面',grid:[[1,1,0],[0,1,1]]},
+        {angle:'上面',grid:[[1,1,0],[1,1,1]]},
+        {angle:'左面',grid:[[1,0],[1,1]]}
+      ]
+    },
+    {
+      blocks:[[1,0],[1,1],[0,1]],
+      colors:[[1,0],[2,3],[0,4]],
+      views:[
+        {angle:'正面',grid:[[1,0],[1,1],[0,1]]},
+        {angle:'上面',grid:[[1,1],[0,1]]},
+        {angle:'左面',grid:[[1,1],[1,1]]}
+      ]
+    },
+    {
+      blocks:[[1,1,1],[1,0,1],[1,1,1]],
+      colors:[[1,2,3],[4,0,1],[2,3,4]],
+      views:[
+        {angle:'正面',grid:[[1,1,1],[1,0,1],[1,1,1]]},
+        {angle:'上面',grid:[[1,1,1],[1,1,1],[1,1,1]]},
+        {angle:'左面',grid:[[1,1,1],[1,0,1],[1,1,1]]}
+      ]
+    },
+    {
+      blocks:[[1,1],[1,0]],
+      colors:[[1,2],[3,0]],
+      views:[
+        {angle:'正面',grid:[[1,1],[1,0]]},
+        {angle:'上面',grid:[[1,1],[1,0]]},
+        {angle:'左面',grid:[[1,1],[1,0]]}
+      ]
+    },
+    {
+      blocks:[[0,1],[1,1],[1,0]],
+      colors:[[0,1],[2,3],[4,0]],
+      views:[
+        {angle:'正面',grid:[[0,1],[1,1],[1,0]]},
+        {angle:'上面',grid:[[1,1],[1,1]]},
+        {angle:'左面',grid:[[0,1],[1,1],[1,0]]}
+      ]
+    },
+    {
+      blocks:[[1,1,1,1],[0,1,1,0]],
+      colors:[[1,2,3,4],[0,1,2,0]],
+      views:[
+        {angle:'正面',grid:[[1,1,1,1],[0,1,1,0]]},
+        {angle:'上面',grid:[[1,1,1,1],[1,1,1,1]]},
+        {angle:'左面',grid:[[1,1],[0,1]]}
+      ]
+    },
+    {
+      blocks:[[1,0,0],[1,1,0],[1,1,1]],
+      colors:[[1,0,0],[2,3,0],[4,1,2]],
+      views:[
+        {angle:'正面',grid:[[1,0,0],[1,1,0],[1,1,1]]},
+        {angle:'上面',grid:[[1,1,1],[1,1,1],[1,1,1]]},
+        {angle:'左面',grid:[[1,1,1],[1,1,1],[1,1,1]]}
+      ]
+    },
+    {
+      blocks:[[1,1],[0,1],[1,1]],
+      colors:[[1,2],[0,3],[4,1]],
+      views:[
+        {angle:'正面',grid:[[1,1],[0,1],[1,1]]},
+        {angle:'上面',grid:[[1,1],[1,1],[1,1]]},
+        {angle:'左面',grid:[[1,1],[1,1],[1,1]]}
+      ]
+    }
+  ];
+  const shuffled=structures.sort(()=>Math.random()-0.5);
+  for(let i=0;i<T;i++){
+    const s=shuffled[i%shuffled.length];
+    const angleIdx=rand(0,2);
+    const view=s.views[angleIdx];
+    // Generate wrong options
+    const wrongs=[];
+    for(let j=0;j<3;j++){
+      if(j!==angleIdx)wrongs.push(s.views[j].grid);
+    }
+    while(wrongs.length<3){
+      const rows=view.grid.length,cols=view.grid[0].length;
+      const w=view.grid.map(r=>[...r]);
+      const ri=rand(0,rows-1),ci=rand(0,cols-1);
+      w[ri][ci]=w[ri][ci]?0:1;
+      wrongs.push(w);
+    }
+    r.push({
+      blocks:s.blocks,
+      colors:s.colors,
+      question:`从${view.angle}看，这个积木是什么形状？`,
+      correct:view.grid,
+      options:[view.grid,...wrongs.slice(0,3)].sort(()=>Math.random()-0.5)
+    });
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function setAngle(idx,el){
+  currentAngle=idx;
+  document.querySelectorAll('.angle-tab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderBlocks(q){
+  const view=document.getElementById('isoView');
+  const rows=q.blocks.length,cols=q.blocks[0].length;
+  const cellSize=Math.min(40,Math.floor(180/Math.max(rows,cols)));
+  let html=`<div class="iso-grid" style="grid-template-columns:repeat(${cols},${cellSize}px)">`;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      if(q.blocks[r][c]){
+        const ci=q.colors[r][c]||1;
+        html+=`<div class="iso-block color${ci}" style="width:${cellSize}px;height:${cellSize}px;animation-delay:${(r*cols+c)*0.08}s"></div>`;
+      }else{
+        html+=`<div style="width:${cellSize}px;height:${cellSize}px"></div>`;
+      }
+    }
+  }
+  html+='</div>';
+  view.innerHTML=html;
+}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;currentAngle=0;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.querySelectorAll('.angle-tab').forEach((b,i)=>b.classList.toggle('active',i===0));
+  renderBlocks(q);
+  const ag=document.getElementById('ag');
+  ag.innerHTML='';
+  const labels=['A','B','C','D'];
+  q.options.forEach((opt,idx)=>{
+    const card=document.createElement('div');
+    card.className='ans-card';
+    const rows=opt.length,cols=opt[0].length;
+    const cs=Math.min(24,Math.floor(80/Math.max(rows,cols)));
+    let gridHtml=`<div class="label">选项 ${labels[idx]}</div><div class="grid" style="grid-template-columns:repeat(${cols},${cs}px)">`;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const color=opt[r][c]?'#e74c3c':'#F5F5F5';
+        gridHtml+=`<div class="cell" style="background:${color};width:${cs}px;height:${cs}px"></div>`;
+      }
+    }
+    gridHtml+='</div>';
+    card.innerHTML=gridHtml;
+    card.onclick=()=>pickAnswer(opt,card);
+    ag.appendChild(card);
+  });
+}
+
+function pickAnswer(opt,el){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.ans-card').forEach(c=>c.classList.add('disabled'));
+  if(JSON.stringify(opt)===JSON.stringify(q.correct)){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 太棒了！你观察得很仔细！';
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ 再仔细观察一下哦！';
+  }
+  setTimeout(()=>{rd++;next()},1800);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 建筑大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

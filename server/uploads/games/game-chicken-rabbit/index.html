@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鸡兔同笼 - 经典数学问题</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#a8e063 0%,#56ab2f 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.farm-preview{font-size:48px;margin:16px 0;animation:farmBounce 2s ease-in-out infinite}
+@keyframes farmBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#E65100;line-height:1.6}
+.farm-scene{position:relative;height:160px;background:linear-gradient(180deg,#87CEEB 0%,#E0F7FA 50%,#8BC34A 50%,#689F38 100%);border-radius:16px;margin:12px 0;overflow:hidden;border:3px solid #4CAF50}
+.fence{position:absolute;bottom:30%;left:0;right:0;height:3px;background:#8D6E63}
+.fence::before,.fence::after{content:'';position:absolute;width:3px;height:20px;background:#8D6E63;bottom:0}
+.fence::before{left:20%}.fence::after{right:20%}
+.animal{position:absolute;font-size:28px;cursor:pointer;transition:all .3s}
+.animal:hover{transform:scale(1.2)}
+.animal.chicken{animation:chickenWalk 2s ease-in-out infinite}
+.animal.rabbit{animation:rabbitHop 1.5s ease-in-out infinite}
+@keyframes chickenWalk{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+@keyframes rabbitHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.barn{position:absolute;top:5px;right:10px;font-size:30px;opacity:0.6}
+.info-cards{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.info-card{padding:6px 12px;background:#FFF3E0;border:2px solid #FFB74D;border-radius:10px;font-size:13px;font-weight:700;color:#E65100}
+.info-card .emoji{font-size:16px}
+.try-area{margin:10px 0;padding:12px;background:#F5F5F5;border-radius:12px}
+.try-label{font-size:13px;color:#666;margin-bottom:8px}
+.try-inputs{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.try-input{width:70px;padding:8px;border:2px solid #E0E0E0;border-radius:10px;font-size:16px;font-weight:700;text-align:center;outline:none}
+.try-input:focus{border-color:#E65100}
+.try-btn{padding:8px 16px;background:linear-gradient(135deg,#E65100,#BF360C);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.try-btn:hover{transform:scale(1.05)}
+.hint-text{font-size:12px;color:#999;margin-top:8px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{padding:12px;border:3px solid #E0E0E0;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#E65100;transform:scale(1.03)}
+.opt.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.opt.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🐔 农场谜题</h1>
+    <p>鸡兔同笼 · 四年级</p>
+    <div class="farm-preview">🐔🐰🌾</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">笼子里有鸡和兔<br>数头数脚，猜猜各有几只！共10关</p>
+    <button class="btn" onclick="startGame()">进入农场 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">笼子里有鸡和兔</div>
+      <div class="farm-scene" id="fs">
+        <div class="barn">🏠</div>
+        <div class="fence"></div>
+      </div>
+      <div class="info-cards" id="ic"></div>
+      <div class="try-area">
+        <div class="try-label">试试看：鸡有几只？兔有几只？</div>
+        <div class="try-inputs">
+          <span>🐔</span>
+          <input type="number" class="try-input" id="chickenIn" min="0" placeholder="?">
+          <span>只</span>
+          <span>🐰</span>
+          <input type="number" class="try-input" id="rabbitIn" min="0" placeholder="?">
+          <span>只</span>
+          <button class="try-btn" onclick="tryAnswer()">验证</button>
+        </div>
+        <div class="hint-text" id="hint">💡 提示：鸡有2条腿，兔有4条腿</div>
+      </div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 农场通关！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    let chickens,rabbits;
+    // Generate valid chicken-rabbit problem
+    chickens=rand(2,10);
+    rabbits=rand(2,10);
+    const heads=chickens+rabbits;
+    const legs=chickens*2+rabbits*4;
+    const wrongs=generateWrongs(chickens,rabbits);
+    r.push({
+      heads,legs,chickens,rabbits,
+      question:`笼子里有${heads}个头，${legs}只脚。鸡和兔各有多少只？`,
+      correct:`鸡${chickens}只，兔${rabbits}只`,
+      options:[`鸡${chickens}只，兔${rabbits}只`,...wrongs].sort(()=>Math.random()-0.5)
+    });
+  }
+  return r;
+}
+
+function generateWrongs(c,r){
+  const wrongs=new Set();
+  while(wrongs.size<3){
+    const wc=c+rand(-2,2),wr=r+rand(-2,2);
+    if(wc>=0&&wr>=0&&wc+wr===c+r&&(wc!==c||wr!==r)){
+      const legs=wc*2+wr*4;
+      if(legs!==c*2+r*4)wrongs.add(`鸡${wc}只，兔${wr}只`);
+    }
+  }
+  while(wrongs.size<3){
+    const wc=rand(1,c+r-1),wr=c+r-wc;
+    if(wc!==c)wrongs.add(`鸡${wc}只，兔${wr}只`);
+  }
+  return [...wrongs].slice(0,3);
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('chickenIn').value='';
+  document.getElementById('rabbitIn').value='';
+  // Info cards
+  document.getElementById('ic').innerHTML=`
+    <div class="info-card"><span class="emoji">👤</span>头: ${q.heads}个</div>
+    <div class="info-card"><span class="emoji">🦶</span>脚: ${q.legs}只</div>
+    <div class="info-card"><span class="emoji">🐔</span>鸡: 2条腿</div>
+    <div class="info-card"><span class="emoji">🐰</span>兔: 4条腿</div>
+  `;
+  // Farm scene
+  const fs=document.getElementById('fs');
+  fs.querySelectorAll('.animal').forEach(a=>a.remove());
+  for(let i=0;i<Math.min(q.chickens,5);i++){
+    const a=document.createElement('div');
+    a.className='animal chicken';
+    a.textContent='🐔';
+    a.style.left=(5+i*18)+'%';
+    a.style.top=(50+rand(0,15))+'%';
+    a.style.animationDelay=(i*0.3)+'s';
+    fs.appendChild(a);
+  }
+  for(let i=0;i<Math.min(q.rabbits,5);i++){
+    const a=document.createElement('div');
+    a.className='animal rabbit';
+    a.textContent='🐰';
+    a.style.left=(55+i*10)+'%';
+    a.style.top=(50+rand(0,15))+'%';
+    a.style.animationDelay=(i*0.2)+'s';
+    fs.appendChild(a);
+  }
+  // Options
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o;
+    d.onclick=()=>pick(o,d,q);
+    opts.appendChild(d);
+  });
+}
+
+function tryAnswer(){
+  if(ans)return;
+  const c=parseInt(document.getElementById('chickenIn').value);
+  const r=parseInt(document.getElementById('rabbitIn').value);
+  if(isNaN(c)||isNaN(r)){return;}
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  if(c===q.chickens&&r===q.rabbits){
+    ans=true;sc+=10;
+    document.getElementById('sv').textContent=sc;
+    fb.className='fb show ok';
+    fb.textContent=`✅ 太聪明了！鸡${c}只(×2=${c*2}腿)，兔${r}只(×4=${r*4}腿)，共${c+r}个头${c*2+r*4}只脚`;
+    document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+    setTimeout(()=>{rd++;next()},2500);
+  }else{
+    const totalHeads=c+r;
+    const totalLegs=c*2+r*4;
+    fb.className='fb show no';
+    if(totalHeads!==q.heads){
+      fb.textContent=`❌ 头数不对！你算的是${totalHeads}个头，应该是${q.heads}个`;
+    }else{
+      fb.textContent=`❌ 脚数不对！你算的是${totalLegs}只脚，应该是${q.legs}只`;
+    }
+  }
+}
+
+function pick(val,el,q){
+  if(ans)return;
+  ans=true;
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q.correct){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent=`✅ 正确！鸡${q.chickens}只×2=${q.chickens*2}腿，兔${q.rabbits}只×4=${q.rabbits*4}腿`;
+    document.getElementById('chickenIn').value=q.chickens;
+    document.getElementById('rabbitIn').value=q.rabbits;
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent=`❌ 正确答案是：鸡${q.chickens}只，兔${q.rabbits}只`;
+  }
+  setTimeout(()=>{rd++;next()},2500);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 农场主人！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小数世界 - 小数的意义</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.world-preview{font-size:48px;margin:16px 0;animation:worldSpin 3s ease-in-out infinite}
+@keyframes worldSpin{0%,100%{transform:rotate(0deg) scale(1)}50%{transform:rotate(10deg) scale(1.05)}}
+.btn{background:linear-gradient(135deg,#e67e22,#d35400);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.2);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);min-height:420px}
+.qb{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#2E7D32}
+.number-line{position:relative;height:80px;margin:16px 0;padding:20px 10px 0}
+.nl-track{position:relative;height:4px;background:#333;border-radius:2px;margin:0 20px}
+.nl-mark{position:absolute;top:-8px;transform:translateX(-50%);width:2px;height:20px;background:#333}
+.nl-label{position:absolute;top:12px;transform:translateX(-50%);font-size:11px;color:#666;font-weight:600}
+.nl-target{position:absolute;top:-30px;transform:translateX(-50%);font-size:20px;cursor:pointer;transition:all .3s;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.2))}
+.nl-target:hover{transform:translateX(-50%) scale(1.2)}
+.nl-target.placed{animation:placeDown .4s}
+@keyframes placeDown{from{top:-50px;opacity:0}to{top:-30px;opacity:1}}
+.nl-target.correct-place{color:#4CAF50}
+.nl-target.wrong-place{color:#f44336;animation:shake .5s}
+.fraction-display{display:flex;gap:12px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+.fraction-card{padding:10px 16px;background:#FFF3E0;border:2px solid #FFB74D;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;color:#E65100}
+.fraction-card:hover{transform:scale(1.05);border-color:#E65100}
+.fraction-card.selected{background:#E65100;color:#fff;border-color:#E65100}
+.fraction-card.correct{background:#4CAF50;color:#fff;border-color:#4CAF50;animation:pulse .5s}
+.fraction-card.wrong{background:#f44336;color:#fff;border-color:#f44336;animation:shake .5s}
+.fraction-card.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.hint{font-size:12px;color:#999;margin-top:8px}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🌍 小数世界</h1>
+    <p>小数的意义 · 四年级</p>
+    <div class="world-preview">🌍✨🌿</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">探索小数的奥秘<br>在数轴上找到正确的位置！共10关</p>
+    <button class="btn" onclick="startGame()">开始探索 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">把小数放到数轴上正确的位置</div>
+      <div class="number-line" id="nl"></div>
+      <div class="fraction-display" id="fd"></div>
+      <div class="hint" id="hint"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 探索完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const type=rand(0,2);
+    let target,range,question,options,correctIdx;
+    if(type===0){
+      // Tenths: 0.1 to 0.9
+      const tenth=rand(1,9);
+      target=tenth/10;
+      range={min:0,max:1,step:0.1};
+      question=`${tenth}/10 = ? 在数轴上找到这个位置`;
+      options=[target,target+0.1,target-0.1,target+0.2].filter(v=>v>=0&&v<=1).slice(0,4);
+      if(options.length<4)options.push(target-0.2>=0?target-0.2:target+0.1);
+    }else if(type===1){
+      // Hundredths
+      const h=rand(1,9),t=rand(1,9);
+      target=h/10+t/100;
+      range={min:0,max:1,step:0.1};
+      question=`${h*10+t}/100 = ? 在数轴上找到大约位置`;
+      options=[target,target+0.05,target-0.05,target+0.1].filter(v=>v>=0&&v<=1).slice(0,4);
+    }else{
+      // Between integers
+      const intPart=rand(0,4),tenth=rand(1,9);
+      target=intPart+tenth/10;
+      range={min:intPart,max:intPart+1,step:0.1};
+      question=`${target} 在数轴上什么位置？`;
+      options=[target,target+0.1,target-0.1,target+0.2].filter(v=>v>=range.min&&v<=range.max).slice(0,4);
+    }
+    // Shuffle and track correct
+    correctIdx=0;
+    const correct=options[0];
+    options.sort(()=>Math.random()-0.5);
+    correctIdx=options.indexOf(correct);
+    r.push({target,range,question,options,correct,correctIdx});
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('hint').textContent=`💡 ${q.range.min} 到 ${q.range.max} 之间，每格 ${q.range.step}`;
+  // Render number line
+  renderNumberLine(q);
+  // Render fraction options
+  const fd=document.getElementById('fd');
+  fd.innerHTML='';
+  q.options.forEach((opt,idx)=>{
+    const card=document.createElement('div');
+    card.className='fraction-card';
+    card.textContent=opt.toFixed(opt%1===0?0:opt*10%1===0?1:2);
+    card.onclick=()=>pickAnswer(opt,card);
+    fd.appendChild(card);
+  });
+}
+
+function renderNumberLine(q){
+  const nl=document.getElementById('nl');
+  const {min,max,step}=q.range;
+  const steps=Math.round((max-min)/step);
+  let html=`<div class="nl-track">`;
+  for(let i=0;i<=steps;i++){
+    const val=min+i*step;
+    const pct=(i/steps*100);
+    html+=`<div class="nl-mark" style="left:${pct}%"></div>`;
+    html+=`<div class="nl-label" style="left:${pct}%">${val%1===0?val:val.toFixed(1)}</div>`;
+  }
+  html+=`</div>`;
+  nl.innerHTML=html;
+}
+
+function pickAnswer(val,el){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.fraction-card').forEach(c=>c.classList.add('disabled'));
+  if(Math.abs(val-q.correct)<0.001){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent=`✅ 正确！${q.correct} 在 ${q.range.min} 和 ${q.range.max} 之间`;
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent=`❌ 不对哦！正确答案是 ${q.correct}`;
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 探索大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

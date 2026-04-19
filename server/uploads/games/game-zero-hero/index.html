@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>零之英雄 - 0的特性</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:32px;text-shadow:0 0 20px rgba(255,215,0,0.5);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.hero{font-size:80px;margin:20px 0;animation:heroFloat 3s ease-in-out infinite;text-shadow:0 0 30px rgba(255,215,0,0.6)}
+@keyframes heroFloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-15px) rotate(5deg)}}
+.btn{background:linear-gradient(135deg,#f39c12,#e74c3c);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.15);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,#f39c12,#e74c3c);border-radius:4px;transition:width .5s}
+.ga{background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid rgba(255,215,0,0.3);border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3);min-height:400px;color:#fff}
+.comic-panel{background:rgba(255,255,255,0.05);border:3px solid rgba(255,215,0,0.4);border-radius:16px;padding:20px;margin:16px 0;position:relative}
+.comic-panel::before{content:'BANG!';position:absolute;top:-15px;right:20px;background:#e74c3c;color:#fff;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:800;transform:rotate(5deg);display:none}
+.comic-panel.show-bang::before{display:block;animation:popIn .3s}
+@keyframes popIn{from{transform:scale(0) rotate(0deg)}to{transform:scale(1) rotate(5deg)}}
+.equation{font-size:36px;font-weight:800;margin:20px 0;letter-spacing:4px;text-shadow:0 0 10px rgba(255,215,0,0.3)}
+.equation .zero{color:#f39c12;font-size:44px}
+.hero-mini{font-size:40px;display:inline-block;animation:heroPunch .5s}
+@keyframes heroPunch{0%{transform:translateX(0)}30%{transform:translateX(20px) rotate(10deg)}60%{transform:translateX(-5px)}100%{transform:translateX(0)}}
+.choices{display:flex;gap:12px;justify-content:center;margin:20px 0}
+.choice{flex:1;padding:16px;border:3px solid rgba(255,255,255,0.2);border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;background:rgba(255,255,255,0.05);color:#fff}
+.choice:hover{border-color:#f39c12;transform:scale(1.05);background:rgba(243,156,18,0.1)}
+.choice.correct{border-color:#2ecc71;background:rgba(46,204,113,0.2);animation:pulse .5s}
+.choice.wrong{border-color:#e74c3c;background:rgba(231,76,60,0.2);animation:shake .5s}
+.choice.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{text-align:center;padding:12px;border-radius:12px;margin-top:12px;font-size:15px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:rgba(46,204,113,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.3)}
+.fb.no{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid rgba(231,76,60,0.3)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.rule-hint{font-size:13px;color:rgba(255,255,255,0.6);margin-top:12px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0;color:#f39c12}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#333;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+.particles{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:6px;height:6px;border-radius:50%;animation:particleFly 1s ease-out forwards}
+@keyframes particleFly{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(var(--tx),var(--ty))}}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>零之英雄</h1>
+    <p>0的特性 · 四年级</p>
+    <div class="hero">🦸</div>
+    <p style="font-size:13px;opacity:0.7;margin-bottom:20px">0号英雄来啦！判断下面的算式<br>哪些是对的，哪些是错的？</p>
+    <button class="btn" onclick="startGame()">开始挑战 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="comic-panel" id="cp">
+        <div class="particles" id="particles"></div>
+        <div class="hero-mini" id="hm">🦸</div>
+        <div class="equation" id="eq"></div>
+      </div>
+      <div class="choices">
+        <div class="choice" id="c1" onclick="answer(true)">✅ 正确</div>
+        <div class="choice" id="c2" onclick="answer(false)">❌ 错误</div>
+      </div>
+      <div class="fb" id="fb"></div>
+      <div class="rule-hint" id="rh"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 挑战完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const types=[
+    {eq:'5 + 0 = 5',ok:true,hint:'任何数加0等于它本身'},
+    {eq:'0 + 8 = 0',ok:false,hint:'0加任何数等于那个数，不是0'},
+    {eq:'12 - 0 = 12',ok:true,hint:'任何数减0等于它本身'},
+    {eq:'7 - 7 = 0',ok:true,hint:'相同数相减等于0'},
+    {eq:'0 × 9 = 0',ok:true,hint:'任何数乘0等于0'},
+    {eq:'6 × 0 = 6',ok:false,hint:'任何数乘0等于0，不是它本身'},
+    {eq:'0 ÷ 5 = 0',ok:true,hint:'0除以任何非零数等于0'},
+    {eq:'5 ÷ 0 = 0',ok:false,hint:'0不能做除数！这是一个常见错误'},
+    {eq:'0 + 0 = 0',ok:true,hint:'0加0还是0'},
+    {eq:'0 × 0 = 0',ok:true,hint:'0乘0还是0'},
+    {eq:'100 - 0 = 0',ok:false,hint:'任何数减0等于它本身，不是0'},
+    {eq:'3 × 0 + 5 = 5',ok:true,hint:'先算3×0=0，再算0+5=5'},
+    {eq:'0 ÷ 10 = 10',ok:false,hint:'0除以任何非零数等于0'},
+    {eq:'8 + 0 = 8 - 0',ok:true,hint:'两边都等于8'},
+    {eq:'0 × 100 = 100',ok:false,hint:'任何数乘0都等于0'},
+  ];
+  const shuffled=types.sort(()=>Math.random()-0.5);
+  for(let i=0;i<T;i++){
+    const t=shuffled[i%shuffled.length];
+    r.push({...t});
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('c1').className='choice';
+  document.getElementById('c2').className='choice';
+  document.getElementById('cp').classList.remove('show-bang');
+  // Format equation with highlighted zeros
+  let html=q.eq.replace(/0/g,'<span class="zero">0</span>');
+  document.getElementById('eq').innerHTML=html;
+  document.getElementById('rh').textContent='💡 提示：'+q.hint;
+  // Animate hero
+  const hm=document.getElementById('hm');
+  hm.style.animation='none';
+  setTimeout(()=>hm.style.animation='heroPunch .5s',10);
+}
+
+function answer(userSaysCorrect){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  const isCorrect=(userSaysCorrect===q.ok);
+  fb.classList.add('show');
+  if(isCorrect){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    fb.className='fb show ok';
+    fb.textContent='✅ 判断正确！'+q.hint;
+    document.getElementById('cp').classList.add('show-bang');
+    createParticles();
+  }else{
+    fb.className='fb show no';
+    fb.textContent='❌ 判断错误！'+q.hint;
+  }
+  document.getElementById('c1').classList.add('disabled');
+  document.getElementById('c2').classList.add('disabled');
+  if(userSaysCorrect===q.ok){
+    document.getElementById(userSaysCorrect?'c1':'c2').classList.add('correct');
+  }else{
+    document.getElementById(userSaysCorrect?'c1':'c2').classList.add('wrong');
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function createParticles(){
+  const c=document.getElementById('particles');
+  const colors=['#f39c12','#e74c3c','#2ecc71','#3498db','#9b59b6'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left='50%';p.style.top='50%';
+    p.style.background=colors[i%colors.length];
+    p.style.setProperty('--tx',(Math.random()*100-50)+'px');
+    p.style.setProperty('--ty',(Math.random()*100-50)+'px');
+    c.appendChild(p);
+    setTimeout(()=>p.remove(),1000);
+  }
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 完美通关！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

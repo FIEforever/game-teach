@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平移拼图 - 平移</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.slide-preview{font-size:48px;margin:16px 0;animation:slideAnim 2s ease-in-out infinite}
+@keyframes slideAnim{0%,100%{transform:translateX(0)}50%{transform:translateX(20px)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.2);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);min-height:420px}
+.qb{background:linear-gradient(135deg,#EDE7F6,#D1C4E9);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#4527A0}
+.grid-area{position:relative;width:100%;height:240px;background:#F5F5F5;border-radius:16px;margin:12px 0;overflow:hidden;border:3px solid #BDBDBD}
+.grid-lines{position:absolute;top:0;left:0;right:0;bottom:0}
+.grid-line-h,.grid-line-v{position:absolute;background:#E0E0E0}
+.grid-line-h{left:0;right:0;height:1px}
+.grid-line-v{top:0;bottom:0;width:1px}
+.shape{position:absolute;transition:all 0.8s ease-in-out;z-index:2}
+.shape-block{width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.target-area{position:absolute;border:2px dashed #4CAF50;border-radius:6px;opacity:0.5}
+.arrow-controls{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.arrow-btn{width:50px;height:50px;border:none;border-radius:12px;font-size:20px;cursor:pointer;transition:all .2s;color:#fff;display:flex;align-items:center;justify-content:center}
+.arrow-btn:hover{transform:scale(1.1)}
+.arrow-btn:active{transform:scale(0.9)}
+.arrow-btn.up{background:linear-gradient(135deg,#2ecc71,#27ae60)}
+.arrow-btn.down{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.arrow-btn.left{background:linear-gradient(135deg,#3498db,#2980b9)}
+.arrow-btn.right{background:linear-gradient(135deg,#f39c12,#e67e22)}
+.move-info{font-size:13px;color:#666;margin:6px 0}
+.move-count{font-weight:700;color:#4527A0}
+.options{display:flex;gap:10px;justify-content:center;margin-top:8px}
+.opt{padding:10px 20px;border:3px solid #E0E0E0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#764ba2;transform:scale(1.05)}
+.opt.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.opt.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>➡️ 平移拼图</h1>
+    <p>平移 · 四年级</p>
+    <div class="slide-preview">➡️⬇️🔺</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">移动图形到目标位置<br>按照要求平移图形！共10关</p>
+    <button class="btn" onclick="startGame()">开始平移 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">把图形平移到目标位置</div>
+      <div class="grid-area" id="grid">
+        <div class="grid-lines" id="gl"></div>
+        <div class="target-area" id="target"></div>
+        <div class="shape" id="shape"></div>
+      </div>
+      <div class="arrow-controls">
+        <button class="arrow-btn up" onclick="move(0,-1)">⬆</button>
+        <button class="arrow-btn left" onclick="move(-1,0)">⬅</button>
+        <button class="arrow-btn right" onclick="move(1,0)">➡</button>
+        <button class="arrow-btn down" onclick="move(0,1)">⬇</button>
+      </div>
+      <div class="move-info">已移动: <span class="move-count" id="mc">0</span> 步</div>
+      <div class="options">
+        <div class="opt" onclick="confirmMove()">✓ 到位了</div>
+        <div class="opt" onclick="resetMove()">↺ 重来</div>
+      </div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 平移完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false,curX=0,curY=0,startX=0,startY=0,moveCount=0;
+const CELL=40;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const shapes=['🔺','🟦','🟩','⭐','💎','🟣'];
+  for(let i=0;i<T;i++){
+    const shape=shapes[i%shapes.length];
+    const sx=rand(0,2),sy=rand(0,2);
+    const dx=rand(1,3),dy=rand(1,3);
+    const dir=Math.random()<0.5?1:-1;
+    const tx=sx+dx*dir,ty=sy+dy;
+    const moveX=dx*dir,moveY=dy;
+    r.push({
+      shape,sx,sy,tx,ty,moveX,moveY,
+      question:`把${shape}向${moveX>0?'右':'左'}平移${Math.abs(moveX)}格，再向下平移${moveY}格`
+    });
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  buildGrid();
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function buildGrid(){
+  const gl=document.getElementById('gl');
+  gl.innerHTML='';
+  for(let i=1;i<6;i++){
+    const h=document.createElement('div');h.className='grid-line-h';h.style.top=(i*CELL)+'px';gl.appendChild(h);
+    const v=document.createElement('div');v.className='grid-line-v';v.style.left=(i*CELL)+'px';gl.appendChild(v);
+  }
+}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  curX=q.sx;curY=q.sy;startX=q.sx;startY=q.sy;moveCount=0;
+  document.getElementById('mc').textContent='0';
+  // Target
+  const target=document.getElementById('target');
+  target.style.left=(q.tx*CELL)+'px';
+  target.style.top=(q.ty*CELL)+'px';
+  target.style.width=CELL+'px';
+  target.style.height=CELL+'px';
+  // Shape
+  const shape=document.getElementById('shape');
+  shape.style.left=(q.sx*CELL)+'px';
+  shape.style.top=(q.sy*CELL)+'px';
+  shape.innerHTML=`<div class="shape-block" style="background:linear-gradient(135deg,#667eea,#764ba2)">${q.shape}</div>`;
+}
+
+function move(dx,dy){
+  if(ans)return;
+  const newX=curX+dx,newY=curY+dy;
+  if(newX<0||newX>5||newY<0||newY>5)return;
+  curX=newX;curY=newY;moveCount++;
+  document.getElementById('mc').textContent=moveCount;
+  const shape=document.getElementById('shape');
+  shape.style.left=(curX*CELL)+'px';
+  shape.style.top=(curY*CELL)+'px';
+}
+
+function confirmMove(){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  if(curX===q.tx&&curY===q.ty){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    fb.className='fb show ok';
+    fb.textContent=`✅ 正确！平移了${Math.abs(q.moveX)}格${q.moveX>0?'右':'左'}，${q.moveY}格下`;
+  }else{
+    fb.className='fb show no';
+    fb.textContent=`❌ 还没到位哦！目标位置在第${q.tx+1}列第${q.ty+1}行`;
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function resetMove(){
+  if(ans)return;
+  const q=qs[rd];
+  curX=q.sx;curY=q.sy;moveCount=0;
+  document.getElementById('mc').textContent='0';
+  const shape=document.getElementById('shape');
+  shape.style.left=(curX*CELL)+'px';
+  shape.style.top=(curY*CELL)+'px';
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 平移大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

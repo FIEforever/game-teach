@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角形知识大闯关</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'PingFang SC', sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.game-container { width: 100%; max-width: 480px; padding: 20px; }
+.header { text-align: center; color: white; margin-bottom: 20px; }
+.header h1 { font-size: 24px; }
+.stats { display: flex; justify-content: center; gap: 20px; margin-top: 8px; }
+.stat { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; }
+.scene { background: white; border-radius: 24px; padding: 32px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin-bottom: 20px; min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.triangle-display { margin: 24px 0; position: relative; }
+.triangle-svg { width: 200px; height: 180px; }
+.angle-label { position: absolute; font-size: 16px; font-weight: 700; color: #f5576c; }
+.question-text { font-size: 20px; font-weight: 700; color: #333; text-align: center; margin-bottom: 24px; line-height: 1.6; }
+.options { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.option { padding: 16px 20px; border: 2px solid #e8ecf1; border-radius: 14px; font-size: 16px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.option:hover { border-color: #f5576c; }
+.option.correct { border-color: #00b894; background: #e8fff5; color: #00b894; }
+.option.wrong { border-color: #ff7675; background: #ffe8e8; color: #ff7675; }
+.option.disabled { pointer-events: none; opacity: 0.5; }
+.progress-bar { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: white; border-radius: 3px; transition: width 0.5s; }
+.feedback { text-align: center; padding: 12px; border-radius: 10px; margin-bottom: 12px; font-size: 16px; font-weight: 600; display: none; }
+.feedback.show { display: block; }
+.start-screen, .end-screen { text-align: center; color: white; }
+.start-screen h1, .end-screen h1 { font-size: 32px; margin-bottom: 12px; }
+.start-screen p, .end-screen p { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+.btn { background: white; color: #f5576c; border: none; padding: 14px 40px; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
+.btn:hover { transform: scale(1.05); }
+.score-big { font-size: 64px; font-weight: 800; margin: 20px 0; }
+.info-text { font-size: 14px; color: #666; text-align: center; margin-top: 16px; line-height: 1.8; }
+.knowledge-box { background: #fff8f0; border-radius: 12px; padding: 16px; margin-top: 16px; border-left: 4px solid #f5576c; }
+.knowledge-box h3 { font-size: 14px; color: #f5576c; margin-bottom: 8px; }
+.knowledge-box p { font-size: 13px; color: #666; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="start-screen" id="start-screen">
+    <h1>📐 三角形大闯关</h1>
+    <p>四年级下册 · 三角形</p>
+    <div class="knowledge-box" style="background:rgba(255,255,255,0.15);border-left-color:white;color:white">
+      <h3 style="color:white">📖 知识点</h3>
+      <p style="color:rgba(255,255,255,0.9)">三角形的分类、内角和、三边关系</p>
+    </div>
+    <br>
+    <button class="btn" onclick="startGame()">开始闯关 →</button>
+  </div>
+
+  <div id="game-screen" style="display:none">
+    <div class="header">
+      <h1>📐 三角形大闯关</h1>
+      <div class="stats">
+        <span class="stat">⭐ <span id="score">0</span>分</span>
+        <span class="stat">第 <span id="q-num">1</span>/8 题</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="scene" id="scene"></div>
+  </div>
+
+  <div class="end-screen" id="end-screen" style="display:none">
+    <h1 id="end-title">🎉 闯关完成！</h1>
+    <div class="score-big" id="final-score">0</div>
+    <p id="end-msg"></p>
+    <div class="knowledge-box" id="knowledge-summary"></div>
+    <br>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+
+<script>
+const allQuestions = [
+  { q: '三角形按角分类，三个角都是锐角的三角形叫什么？', opts: ['锐角三角形', '直角三角形', '钝角三角形', '等腰三角形'], ans: 0, tip: '三个角都是锐角（<90°）的三角形叫锐角三角形' },
+  { q: '有一个角是直角（90°）的三角形叫什么？', opts: ['锐角三角形', '直角三角形', '钝角三角形', '等边三角形'], ans: 1, tip: '有一个角等于90°的三角形叫直角三角形' },
+  { q: '有一个角是钝角（>90°）的三角形叫什么？', opts: ['锐角三角形', '直角三角形', '钝角三角形', '等腰三角形'], ans: 2, tip: '有一个角大于90°的三角形叫钝角三角形' },
+  { q: '三角形的内角和是多少度？', opts: ['90°', '180°', '270°', '360°'], ans: 1, tip: '任意三角形的三个内角之和都等于180°' },
+  { q: '一个三角形中，两个角分别是50°和60°，第三个角是多少度？', opts: ['60°', '70°', '80°', '90°'], ans: 1, tip: '180° - 50° - 60° = 70°' },
+  { q: '三角形中，任意两边之和与第三边的关系是？', opts: ['大于第三边', '等于第三边', '小于第三边', '不确定'], ans: 0, tip: '三角形任意两边之和大于第三边' },
+  { q: '三条边都相等的三角形叫什么？', opts: ['等腰三角形', '等边三角形', '直角三角形', '不等边三角形'], ans: 1, tip: '三条边都相等的三角形叫等边三角形（正三角形）' },
+  { q: '有两条边相等的三角形叫什么？', opts: ['等腰三角形', '等边三角形', '直角三角形', '不等边三角形'], ans: 0, tip: '有两条边相等的三角形叫等腰三角形' },
+];
+
+let questions = [], currentQ = 0, score = 0, answered = false;
+
+function startGame() {
+  questions = shuffle([...allQuestions]).slice(0, 8);
+  currentQ = 0; score = 0; answered = false;
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  showQuestion();
+}
+
+function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+function showQuestion() {
+  if (currentQ >= questions.length) return endGame();
+  answered = false;
+  const q = questions[currentQ];
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('score').textContent = score;
+  document.getElementById('progress').style.width = (currentQ / questions.length * 100) + '%';
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.style.display = 'none';
+
+  document.getElementById('scene').innerHTML = `
+    <div class="triangle-display">
+      <svg class="triangle-svg" viewBox="0 0 200 180">
+        <polygon points="100,10 190,170 10,170" fill="none" stroke="#f5576c" stroke-width="3"/>
+        <circle cx="100" cy="10" r="4" fill="#f5576c"/>
+        <circle cx="190" cy="170" r="4" fill="#f5576c"/>
+        <circle cx="10" cy="170" r="4" fill="#f5576c"/>
+        <text x="100" y="100" text-anchor="middle" font-size="13" fill="#999">△</text>
+      </svg>
+    </div>
+    <div class="question-text">${q.q}</div>
+    <div class="options">
+      ${q.opts.map((opt, i) => `<div class="option" onclick="check(${i},${q.ans})">${String.fromCharCode(65+i)}. ${opt}</div>`).join('')}
+    </div>
+  `;
+}
+
+function check(idx, ans) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentQ];
+  const opts = document.querySelectorAll('.option');
+  const fb = document.getElementById('feedback');
+
+  opts.forEach((opt, i) => {
+    if (i === ans) opt.classList.add('correct');
+    opt.classList.add('disabled');
+  });
+
+  if (idx === ans) {
+    score += 10;
+    fb.textContent = '✅ 正确！' + q.tip;
+    fb.className = 'feedback show'; fb.style.background = '#e8fff5'; fb.style.color = '#00b894';
+  } else {
+    fb.textContent = '❌ 答错了！' + q.tip;
+    fb.className = 'feedback show'; fb.style.background = '#ffe8e8'; fb.style.color = '#ff7675';
+  }
+  document.getElementById('score').textContent = score;
+  setTimeout(() => { currentQ++; showQuestion(); }, 2000);
+}
+
+function endGame() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'block';
+  document.getElementById('final-score').textContent = score;
+  const pct = score / (questions.length * 10) * 100;
+  document.getElementById('end-title').textContent = pct >= 80 ? '🎉 太棒了！' : pct >= 50 ? '💪 继续加油！' : '📚 多多复习！';
+  document.getElementById('end-msg').textContent = `你答对了 ${score/10}/${questions.length} 题`;
+  document.getElementById('knowledge-summary').innerHTML = `
+    <h3>📐 知识点总结</h3>
+    <p>✅ 三角形按角分：锐角三角形、直角三角形、钝角三角形<br>
+    ✅ 三角形按边分：不等边三角形、等腰三角形、等边三角形<br>
+    ✅ 三角形内角和 = 180°<br>
+    ✅ 任意两边之和 > 第三边</p>
+  `;
+}
+</script>
+</body>
+</html>

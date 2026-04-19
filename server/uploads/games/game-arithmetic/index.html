@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四则运算大冒险</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'PingFang SC', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.game-container { width: 100%; max-width: 480px; padding: 20px; }
+.header { text-align: center; color: white; margin-bottom: 24px; }
+.header h1 { font-size: 28px; margin-bottom: 8px; }
+.stats { display: flex; justify-content: center; gap: 24px; margin-top: 12px; }
+.stat { background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; font-size: 16px; font-weight: 600; }
+.question-card { background: white; border-radius: 24px; padding: 40px 32px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); margin-bottom: 24px; }
+.question-num { font-size: 14px; color: #999; margin-bottom: 16px; }
+.question-text { font-size: 48px; font-weight: 800; color: #333; margin-bottom: 32px; }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.option { padding: 20px; border: 3px solid #e8ecf1; border-radius: 16px; font-size: 24px; font-weight: 700; cursor: pointer; transition: all 0.2s; background: white; }
+.option:hover { border-color: #667eea; transform: scale(1.03); }
+.option.correct { border-color: #00b894; background: #e8fff5; color: #00b894; animation: pulse 0.5s; }
+.option.wrong { border-color: #ff7675; background: #ffe8e8; color: #ff7675; animation: shake 0.5s; }
+.option.disabled { pointer-events: none; opacity: 0.6; }
+.progress-bar { height: 8px; background: rgba(255,255,255,0.3); border-radius: 4px; margin-bottom: 24px; overflow: hidden; }
+.progress-fill { height: 100%; background: white; border-radius: 4px; transition: width 0.5s; }
+.feedback { text-align: center; padding: 16px; border-radius: 12px; margin-bottom: 16px; font-size: 18px; font-weight: 600; display: none; }
+.feedback.show { display: block; }
+.feedback.correct-fb { background: #e8fff5; color: #00b894; }
+.feedback.wrong-fb { background: #ffe8e8; color: #ff7675; }
+.start-screen, .end-screen { text-align: center; color: white; }
+.start-screen h1, .end-screen h1 { font-size: 36px; margin-bottom: 16px; }
+.start-screen p, .end-screen p { font-size: 18px; opacity: 0.9; margin-bottom: 32px; }
+.btn-start { background: white; color: #667eea; border: none; padding: 16px 48px; border-radius: 30px; font-size: 20px; font-weight: 700; cursor: pointer; transition: transform 0.2s; }
+.btn-start:hover { transform: scale(1.05); }
+.score-display { font-size: 72px; font-weight: 800; margin: 24px 0; }
+.stars { font-size: 48px; margin-bottom: 24px; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="start-screen" id="start-screen">
+    <h1>🧮 四则运算大冒险</h1>
+    <p>四年级下册 · 四则运算</p>
+    <p style="font-size:14px;opacity:0.7">共10题，看看你能答对几道！</p>
+    <button class="btn-start" onclick="startGame()">开始挑战 →</button>
+  </div>
+
+  <div id="game-screen" style="display:none">
+    <div class="header">
+      <h1>🧮 四则运算大冒险</h1>
+      <div class="stats">
+        <span class="stat">⭐ <span id="score">0</span>分</span>
+        <span class="stat">❤️ <span id="lives">3</span>条命</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="question-card">
+      <div class="question-num">第 <span id="q-num">1</span> / 10 题</div>
+      <div class="question-text" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+  </div>
+
+  <div class="end-screen" id="end-screen" style="display:none">
+    <h1 id="end-title">🎉 挑战完成！</h1>
+    <div class="score-display" id="final-score">0</div>
+    <div class="stars" id="stars"></div>
+    <p id="end-msg"></p>
+    <button class="btn-start" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+
+<script>
+let questions = [], currentQ = 0, score = 0, lives = 3, answered = false;
+
+function generateQuestions() {
+  const qs = [];
+  const types = ['add', 'sub', 'mul', 'div', 'mixed'];
+  for (let i = 0; i < 10; i++) {
+    const type = types[Math.floor(Math.random() * types.length)];
+    let a, b, answer, text;
+    switch (type) {
+      case 'add':
+        a = rand(100, 999); b = rand(100, 999);
+        answer = a + b; text = `${a} + ${b} = ?`; break;
+      case 'sub':
+        a = rand(200, 999); b = rand(100, a);
+        answer = a - b; text = `${a} - ${b} = ?`; break;
+      case 'mul':
+        a = rand(12, 99); b = rand(2, 9);
+        answer = a * b; text = `${a} × ${b} = ?`; break;
+      case 'div':
+        b = rand(2, 9); answer = rand(12, 99); a = b * answer;
+        text = `${a} ÷ ${b} = ?`; break;
+      case 'mixed':
+        a = rand(10, 50); b = rand(2, 9); const c = rand(10, 50);
+        answer = a * b + c; text = `${a} × ${b} + ${c} = ?`; break;
+    }
+    const options = [answer];
+    while (options.length < 4) {
+      const wrong = answer + rand(-20, 20);
+      if (wrong !== answer && wrong > 0 && !options.includes(wrong)) options.push(wrong);
+    }
+    shuffle(options);
+    qs.push({ text, answer, options });
+  }
+  return qs;
+}
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
+
+function startGame() {
+  questions = generateQuestions(); currentQ = 0; score = 0; lives = 3; answered = false;
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentQ >= questions.length || lives <= 0) return endGame();
+  answered = false;
+  const q = questions[currentQ];
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('question').textContent = q.text;
+  document.getElementById('score').textContent = score;
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('progress').style.width = (currentQ / questions.length * 100) + '%';
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.style.display = 'none';
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = q.options.map((opt, i) =>
+    `<div class="option" onclick="checkAnswer(${i}, ${opt}, ${q.answer})">${opt}</div>`
+  ).join('');
+}
+
+function checkAnswer(idx, selected, correct) {
+  if (answered) return;
+  answered = true;
+  const opts = document.querySelectorAll('.option');
+  const fb = document.getElementById('feedback');
+
+  opts.forEach((opt, i) => {
+    if (parseInt(opt.textContent) === correct) opt.classList.add('correct');
+    opt.classList.add('disabled');
+  });
+
+  if (selected === correct) {
+    opts[idx].classList.add('correct');
+    score += 10;
+    fb.textContent = '✅ 回答正确！+10分';
+    fb.className = 'feedback show correct-fb';
+  } else {
+    opts[idx].classList.add('wrong');
+    lives--;
+    fb.textContent = `❌ 答错了！正确答案是 ${correct}`;
+    fb.className = 'feedback show wrong-fb';
+  }
+
+  document.getElementById('score').textContent = score;
+  document.getElementById('lives').textContent = lives;
+
+  setTimeout(() => { currentQ++; showQuestion(); }, 1200);
+}
+
+function endGame() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'block';
+  document.getElementById('final-score').textContent = score;
+
+  const stars = score >= 90 ? '⭐⭐⭐' : score >= 60 ? '⭐⭐' : score >= 30 ? '⭐' : '💪';
+  document.getElementById('stars').textContent = stars;
+
+  const msgs = { 100: '满分！你是数学天才！🏆', 80: '太棒了！掌握得很好！🎉', 60: '不错哦，继续加油！💪', 30: '还需要多练习哦～📚', 0: '别灰心，再来一次！🌈' };
+  const threshold = Object.keys(msgs).reverse().find(t => score >= t);
+  document.getElementById('end-msg').textContent = msgs[threshold] || msgs[0];
+  document.getElementById('end-title').textContent = score >= 80 ? '🎉 太棒了！' : score >= 40 ? '💪 继续加油！' : '📚 多多练习！';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>糖果工厂 - 乘除法的意义</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#FF9A9E 0%,#FECFEF 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:30px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.candy-preview{font-size:48px;margin:20px 0;animation:spin 3s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}50%{transform:rotate(10deg)}100%{transform:rotate(0deg)}}
+.btn{background:linear-gradient(135deg,#FF6B6B,#ee5a24);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:16px;padding:14px;margin-bottom:14px;font-size:18px;font-weight:700;color:#F57F17;line-height:1.6}
+.factory{display:flex;flex-direction:column;align-items:center;gap:12px;margin:12px 0}
+.boxes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.box{width:80px;height:80px;border:3px dashed #FFB74D;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;background:#FFF8E1;position:relative}
+.box:hover{border-color:#FF9800;transform:scale(1.05)}
+.box.selected{border-color:#FF5722;border-style:solid;background:#FBE9E7;box-shadow:0 0 15px rgba(255,87,34,0.3)}
+.box .candy-count{font-size:24px;font-weight:800;color:#E65100}
+.box .box-label{font-size:11px;color:#BF360C;margin-top:2px}
+.candy-tray{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:12px;background:#FCE4EC;border-radius:12px;min-height:60px;margin:10px 0}
+.candy{font-size:28px;cursor:pointer;transition:all .3s;animation:candyIn .4s ease-out}
+.candy:hover{transform:scale(1.3)}
+.candy.used{opacity:0.2;pointer-events:none;transform:scale(0.5)}
+@keyframes candyIn{from{transform:translateY(-30px) scale(0);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.ab{display:flex;gap:10px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.abtn{padding:10px 20px;border:none;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;color:#fff}
+.abtn.pack{background:linear-gradient(135deg,#AB47BC,#7B1FA2)}
+.abtn.distribute{background:linear-gradient(135deg,#26A69A,#00897B)}
+.abtn.confirm{background:linear-gradient(135deg,#42A5F5,#1E88E5)}
+.abtn:hover{transform:scale(1.05)}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:15px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.8;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🍬 糖果工厂 🍭</h1>
+    <p>乘除法的意义 · 四年级</p>
+    <div class="candy-preview">🍬🍭🍫🧁🍩</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">把糖果装进盒子里，或者平均分配！<br>共10关，看看你能得几颗星！</p>
+    <button class="btn" onclick="startGame()">开始生产 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb"></div>
+      <div class="candy-tray" id="ct"></div>
+      <div class="factory">
+        <div class="boxes" id="boxes"></div>
+      </div>
+      <div class="ab">
+        <button class="abtn pack" onclick="packCandy()">📦 装盒</button>
+        <button class="abtn distribute" onclick="distributeCandy()">📤 分配</button>
+        <button class="abtn confirm" onclick="confirm()">✓ 确认</button>
+      </div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 游戏结束！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],selBox=0,boxVals=[],candyTotal=0,ans=false;
+const candies=['🍬','🍭','🍫','🧁','🍩','🍪'];
+const candyNames=['糖果','棒棒糖','巧克力','纸杯蛋糕','甜甜圈','饼干'];
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  for(let i=0;i<T;i++){
+    const ci=rand(0,candies.length-1);
+    const cn=candyNames[ci];
+    const cd=candies[ci];
+    if(Math.random()<0.5){
+      const rows=rand(2,5),cols=rand(2,5);
+      const ans=rows*cols;
+      r.push({type:'mul',candy:cd,name:cn,rows,cols,ans,text:`每排${cols}个${cn}，共${rows}排，一共几个？`});
+    }else{
+      const total=rand(10,30),boxes=rand(2,5);
+      if(total%boxes!==0)total=boxes*rand(2,Math.floor(total/boxes));
+      const each=total/boxes;
+      r.push({type:'div',candy:cd,name:cn,total,boxes,each,text:`${total}个${cn}平均分到${boxes}个盒子里，每盒几个？`});
+    }
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;selBox=0;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('qb').textContent=q.text;
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  if(q.type==='mul'){
+    boxVals=new Array(q.rows).fill(0);
+    candyTotal=q.cols;
+    renderBoxes(q.rows,'第'+(i+1)+'排');
+    renderCandies(q.cols);
+  }else{
+    boxVals=new Array(q.boxes).fill(0);
+    candyTotal=q.total;
+    renderBoxes(q.boxes,'盒子'+(i+1));
+    renderCandies(q.total);
+  }
+}
+
+function renderBoxes(n,labelFn){
+  const el=document.getElementById('boxes');
+  el.innerHTML='';
+  for(let i=0;i<n;i++){
+    const b=document.createElement('div');
+    b.className='box'+(i===0?' selected':'');
+    b.innerHTML=`<div class="candy-count">${boxVals[i]}</div><div class="box-label">${typeof labelFn==='function'?labelFn(i):'盒子'+(i+1)}</div>`;
+    b.onclick=()=>{if(!ans){selBox=i;document.querySelectorAll('.box').forEach((x,j)=>x.classList.toggle('selected',j===i))}};
+    el.appendChild(b);
+  }
+}
+
+function renderCandies(n){
+  const el=document.getElementById('ct');
+  el.innerHTML='';
+  const q=qs[rd];
+  for(let i=0;i<n;i++){
+    const c=document.createElement('span');
+    c.className='candy';
+    c.textContent=q.candy;
+    c.style.animationDelay=(i*0.05)+'s';
+    c.onclick=()=>{if(!ans)c.classList.toggle('used')};
+    el.appendChild(c);
+  }
+}
+
+function packCandy(){
+  if(ans)return;
+  boxVals[selBox]++;
+  updateBoxDisplay();
+}
+
+function distributeCandy(){
+  if(ans)return;
+  if(boxVals[selBox]>0){
+    boxVals[selBox]--;
+    updateBoxDisplay();
+  }
+}
+
+function updateBoxDisplay(){
+  document.querySelectorAll('.box').forEach((b,i)=>{
+    b.querySelector('.candy-count').textContent=boxVals[i];
+    b.style.transform='scale(1.1)';
+    setTimeout(()=>b.style.transform='',200);
+  });
+}
+
+function confirm(){
+  if(ans)return;
+  ans=true;
+  const q=qs[rd];
+  const fb=document.getElementById('fb');
+  let correct=false;
+  if(q.type==='mul'){
+    correct=boxVals.every(v=>v===q.cols)&&boxVals.length===q.rows;
+  }else{
+    correct=boxVals.every(v=>v===q.each)&&boxVals.reduce((a,b)=>a+b,0)===q.total;
+  }
+  fb.classList.add('show');
+  if(correct){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    fb.className='fb show ok';
+    fb.textContent='✅ 太棒了！答对了！';
+  }else{
+    fb.className='fb show no';
+    fb.textContent='❌ 正确答案是 '+q.ans;
+  }
+  setTimeout(()=>{rd++;next()},1800);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 完美通关！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水果篮子 - 加减法的意义</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(180deg,#87CEEB 0%,#E0F7FA 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.game-container{width:100%;max-width:480px;padding:16px;position:relative}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+/* Start Screen */
+.start-screen{color:#fff}
+.start-screen h1{font-size:32px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin-bottom:8px}
+.start-screen .subtitle{font-size:16px;opacity:0.9;margin-bottom:24px}
+.fruit-preview{display:flex;justify-content:center;gap:12px;margin:20px 0;font-size:48px;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.btn{background:linear-gradient(135deg,#FF6B6B,#FF8E53);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(255,107,107,0.4);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.btn:active{transform:scale(0.95)}
+/* Game Screen */
+.game-header{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:12px}
+.game-header .round{background:rgba(255,255,255,0.3);padding:6px 16px;border-radius:20px;font-size:14px;font-weight:600}
+.game-header .score-display{background:rgba(255,255,255,0.3);padding:6px 16px;border-radius:20px;font-size:14px;font-weight:600}
+.progress-bar{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.game-area{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:400px;position:relative;overflow:hidden}
+.question-box{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:16px;padding:16px;margin-bottom:16px;font-size:20px;font-weight:700;color:#E65100}
+.baskets{display:flex;justify-content:space-around;margin:16px 0;gap:12px}
+.basket{flex:1;background:linear-gradient(135deg,#8D6E63,#6D4C41);border-radius:0 0 20px 20px;height:120px;position:relative;cursor:pointer;transition:all .3s;border:3px solid transparent}
+.basket::before{content:'';position:absolute;top:-20px;left:-8px;right:-8px;height:24px;background:#A1887F;border-radius:8px 8px 0 0;border:3px solid #6D4C41;border-bottom:none}
+.basket-label{text-align:center;color:#fff;font-size:14px;font-weight:700;padding:8px;position:absolute;bottom:8px;width:100%}
+.basket-count{font-size:28px;color:#FFD54F;font-weight:800;text-align:center;padding-top:30px}
+.basket.highlight{border-color:#FFD54F;box-shadow:0 0 20px rgba(255,213,79,0.5);transform:scale(1.05)}
+.basket.correct-basket{border-color:#4CAF50;box-shadow:0 0 20px rgba(76,175,80,0.5)}
+.basket.wrong-basket{border-color:#f44336;box-shadow:0 0 20px rgba(244,67,54,0.5);animation:shake .5s}
+.fruit-zone{min-height:80px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:12px;margin:12px 0;background:#F5F5F5;border-radius:16px;align-items:center}
+.fruit{font-size:36px;cursor:pointer;transition:all .3s;animation:fruitDrop .5s ease-out}
+.fruit:hover{transform:scale(1.2)}
+.fruit.used{opacity:0.3;pointer-events:none;transform:scale(0.5)}
+@keyframes fruitDrop{from{transform:translateY(-50px) rotate(0deg);opacity:0}to{transform:translateY(0) rotate(10deg);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.action-btns{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.action-btn{padding:10px 24px;border:none;border-radius:20px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.action-btn.add{background:linear-gradient(135deg,#66BB6A,#43A047);color:#fff}
+.action-btn.sub{background:linear-gradient(135deg,#EF5350,#E53935);color:#fff}
+.action-btn.confirm{background:linear-gradient(135deg,#42A5F5,#1E88E5);color:#fff}
+.action-btn:hover{transform:scale(1.05)}
+.feedback{text-align:center;padding:12px;border-radius:12px;margin-top:12px;font-size:16px;font-weight:600;display:none}
+.feedback.show{display:block;animation:fadeIn .3s}
+.feedback.correct{background:#E8F5E9;color:#2E7D32}
+.feedback.wrong{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+/* End Screen */
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.final-score{font-size:64px;font-weight:800;margin:16px 0}
+.stars-display{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.end-msg{font-size:16px;margin-bottom:24px;opacity:0.9}
+.student-name{font-size:14px;opacity:0.8;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="screen start-screen active" id="startScreen">
+    <h1>🍎 水果篮子 🍊</h1>
+    <p class="subtitle">加减法的意义 · 四年级</p>
+    <div class="fruit-preview">
+      <span>🍎</span><span>🍊</span><span>🍇</span><span>🍓</span><span>🍌</span>
+    </div>
+    <p style="font-size:14px;opacity:0.8;margin-bottom:24px">把水果拖到篮子里，完成加减法运算！<br>共10关，加油哦！</p>
+    <button class="btn" onclick="startGame()">开始游戏 →</button>
+  </div>
+
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <span class="round">第 <span id="roundNum">1</span>/10 关</span>
+      <span class="score-display">⭐ <span id="scoreVal">0</span>分</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+    <div class="game-area">
+      <div class="question-box" id="questionBox">篮子里有几个苹果？</div>
+      <div class="fruit-zone" id="fruitZone"></div>
+      <div class="baskets">
+        <div class="basket" id="basket1" onclick="selectBasket(0)">
+          <div class="basket-count" id="basketCount1">0</div>
+          <div class="basket-label" id="basketLabel1">篮子A</div>
+        </div>
+        <div class="basket" id="basket2" onclick="selectBasket(1)">
+          <div class="basket-count" id="basketCount2">0</div>
+          <div class="basket-label" id="basketLabel2">篮子B</div>
+        </div>
+      </div>
+      <div class="action-btns">
+        <button class="action-btn add" onclick="addFruit()">+ 放入</button>
+        <button class="action-btn sub" onclick="removeFruit()">- 拿出</button>
+        <button class="action-btn confirm" onclick="confirmAnswer()">✓ 确认</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <div class="screen end-screen" id="endScreen">
+    <h1 id="endTitle">🎉 游戏结束！</h1>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="stars-display" id="starsDisplay"></div>
+    <p class="end-msg" id="endMsg"></p>
+    <p class="student-name" id="studentName"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+
+<script>
+const params=new URLSearchParams(location.search);
+const studentName=params.get('student')||'';
+const TOTAL=10;
+let round=0,score=0,questions=[],selectedBasket=0,basketValues=[0,0],currentAnswer=0,answered=false;
+const fruits=['🍎','🍊','🍇','🍓','🍌','🍑','🍒','🍐'];
+const fruitNames=['苹果','橙子','葡萄','草莓','香蕉','桃子','樱桃','梨子'];
+
+function genQ(){
+  const qs=[];
+  for(let i=0;i<TOTAL;i++){
+    const fi=Math.floor(Math.random()*fruits.length);
+    const fn=fruitNames[fi];
+    const fr=fruits[fi];
+    const type=Math.random()<0.5?'add':'sub';
+    let a,b,answer,text;
+    if(type==='add'){
+      a=rand(2,8);b=rand(2,8);
+      answer=a+b;
+      text=`篮子A有${a}个${fn}，再放入${b}个，现在有几个？`;
+    }else{
+      a=rand(6,15);b=rand(2,a-1);
+      answer=a-b;
+      text=`篮子A有${a}个${fn}，拿出${b}个，还剩几个？`;
+    }
+    qs.push({type,fruit:fr,fruitName:fn,a,b,answer,text});
+  }
+  return qs;
+}
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function startGame(){
+  round=0;score=0;questions=genQ();
+  document.getElementById('startScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  nextRound();
+}
+
+function nextRound(){
+  if(round>=TOTAL){endGame();return}
+  answered=false;
+  basketValues=[questions[round].a,0];
+  selectedBasket=0;
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('questionBox').textContent=questions[round].text;
+  renderFruits();
+  updateBaskets();
+  document.getElementById('roundNum').textContent=round+1;
+  document.getElementById('progressBar').style.width=(round/TOTAL*100)+'%';
+  highlightBasket(0);
+}
+
+function renderFruits(){
+  const zone=document.getElementById('fruitZone');
+  zone.innerHTML='';
+  const q=questions[round];
+  const count=q.type==='add'?q.b:q.b;
+  for(let i=0;i<count;i++){
+    const el=document.createElement('span');
+    el.className='fruit';
+    el.textContent=q.fruit;
+    el.style.animationDelay=(i*0.1)+'s';
+    el.onclick=()=>{if(!answered)el.classList.toggle('used')};
+    zone.appendChild(el);
+  }
+}
+
+function updateBaskets(){
+  document.getElementById('basketCount1').textContent=basketValues[0];
+  document.getElementById('basketCount2').textContent=basketValues[1];
+  document.getElementById('basketLabel1').textContent='篮子A';
+  document.getElementById('basketLabel2').textContent='篮子B';
+}
+
+function selectBasket(idx){
+  if(answered)return;
+  selectedBasket=idx;
+  highlightBasket(idx);
+}
+
+function highlightBasket(idx){
+  document.getElementById('basket1').classList.toggle('highlight',idx===0);
+  document.getElementById('basket2').classList.toggle('highlight',idx===1);
+}
+
+function addFruit(){
+  if(answered)return;
+  basketValues[selectedBasket]++;
+  updateBaskets();
+  animateBasket(selectedBasket);
+}
+
+function removeFruit(){
+  if(answered)return;
+  if(basketValues[selectedBasket]>0){
+    basketValues[selectedBasket]--;
+    updateBaskets();
+    animateBasket(selectedBasket);
+  }
+}
+
+function animateBasket(idx){
+  const el=document.getElementById('basket'+(idx+1));
+  el.style.transform='scale(1.08)';
+  setTimeout(()=>el.style.transform='',200);
+}
+
+function confirmAnswer(){
+  if(answered)return;
+  answered=true;
+  const q=questions[round];
+  const userAnswer=selectedBasket===0?basketValues[0]:basketValues[1];
+  const fb=document.getElementById('feedback');
+  fb.classList.add('show');
+  if(userAnswer===q.answer){
+    score+=10;
+    document.getElementById('scoreVal').textContent=score;
+    fb.className='feedback show correct';
+    fb.textContent='✅ 太棒了！答对了！'+q.text.replace('?','')+'答案是'+q.answer;
+    document.getElementById('basket'+(selectedBasket+1)).classList.add('correct-basket');
+  }else{
+    fb.className='feedback show wrong';
+    fb.textContent='❌ 再想想哦！正确答案是 '+q.answer;
+    document.getElementById('basket'+(selectedBasket+1)).classList.add('wrong-basket');
+  }
+  setTimeout(()=>{
+    document.getElementById('basket1').classList.remove('correct-basket','wrong-basket');
+    document.getElementById('basket2').classList.remove('correct-basket','wrong-basket');
+    round++;
+    nextRound();
+  },2000);
+}
+
+function endGame(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+  document.getElementById('finalScore').textContent=score;
+  const stars=score>=90?3:score>=60?2:score>=30?1:0;
+  let starsHtml='';
+  for(let i=0;i<3;i++){
+    starsHtml+=`<span class="star ${i<stars?'filled':''}">★</span>`;
+  }
+  document.getElementById('starsDisplay').innerHTML=starsHtml;
+  const msgs=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('endTitle').textContent=stars>=3?'🏆 完美通关！':stars>=2?'🎉 表现不错！':'💪 继续加油！';
+  document.getElementById('endMsg').textContent=msgs[stars];
+  if(studentName)document.getElementById('studentName').textContent='玩家：'+studentName;
+}
+</script>
+</body>
+</html>

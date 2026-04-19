@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角建造 - 三角形特性</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',sans-serif;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.gc{width:100%;max-width:480px;padding:16px}
+.screen{display:none;text-align:center}
+.screen.active{display:block}
+.start-screen{color:#fff}
+.start-screen h1{font-size:28px;text-shadow:2px 2px 4px rgba(0,0,0,0.2);margin-bottom:8px}
+.start-screen p{font-size:15px;opacity:0.9;margin-bottom:20px}
+.build-preview{font-size:48px;margin:16px 0;animation:build 2s ease-in-out infinite}
+@keyframes build{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:transform .2s}
+.btn:hover{transform:scale(1.05)}
+.gh{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:10px}
+.gh span{background:rgba(255,255,255,0.3);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.pb{height:8px;background:rgba(255,255,255,0.3);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.pf{height:100%;background:#fff;border-radius:4px;transition:width .5s}
+.ga{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);min-height:420px}
+.qb{background:linear-gradient(135deg,#FFEBEE,#FFCDD2);border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:700;color:#C62828;line-height:1.6}
+.bridge-scene{position:relative;height:160px;background:linear-gradient(180deg,#87CEEB 0%,#E0F7FA 60%,#8BC34A 60%,#689F38 100%);border-radius:16px;margin:12px 0;overflow:hidden;border:3px solid #4CAF50}
+.water{position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(180deg,#4FC3F7,#0288D1);opacity:0.5}
+.bridge-base{position:absolute;bottom:30%;left:10%;right:10%;height:4px;background:#795548}
+.triangle-support{position:absolute;bottom:30%;width:0;height:0;transition:all .5s}
+.tri-shape{width:100px;height:80px;position:absolute;bottom:30%;left:50%;transform:translateX(-50%)}
+.tri-shape svg{width:100%;height:100%}
+.stability-meter{margin:10px 0;padding:10px;background:#F5F5F5;border-radius:12px}
+.meter-label{font-size:13px;color:#666;margin-bottom:6px}
+.meter-bar{height:16px;background:#E0E0E0;border-radius:8px;overflow:hidden}
+.meter-fill{height:100%;background:linear-gradient(90deg,#f44336,#FF9800,#4CAF50);border-radius:8px;transition:width .5s}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{padding:12px;border:3px solid #E0E0E0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#e74c3c;transform:scale(1.03)}
+.opt.correct{border-color:#4CAF50;background:#E8F5E9;animation:pulse .5s}
+.opt.wrong{border-color:#f44336;background:#FFEBEE;animation:shake .5s}
+.opt.disabled{pointer-events:none;opacity:0.5}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{text-align:center;padding:10px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fadeIn .3s}
+.fb.ok{background:#E8F5E9;color:#2E7D32}
+.fb.no{background:#FFEBEE;color:#C62828}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.end-screen{color:#fff}
+.end-screen h1{font-size:28px;margin-bottom:16px}
+.fs{font-size:64px;font-weight:800;margin:16px 0}
+.sd{font-size:48px;margin:16px 0}
+.star{display:inline-block;color:#555;transition:all .5s}
+.star.filled{color:#FFD700;animation:starPop .5s}
+@keyframes starPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sn{font-size:14px;opacity:0.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gc">
+  <div class="screen start-screen active" id="ss">
+    <h1>🏗️ 三角建造</h1>
+    <p>三角形特性 · 四年级</p>
+    <div class="build-preview">🏗️🌉🔧</div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:20px">利用三角形的稳定性建桥<br>选择正确的支撑结构！共10关</p>
+    <button class="btn" onclick="startGame()">开始建造 →</button>
+  </div>
+  <div class="screen" id="gs">
+    <div class="gh">
+      <span>第 <span id="rn">1</span>/10 关</span>
+      <span>⭐ <span id="sv">0</span>分</span>
+    </div>
+    <div class="pb"><div class="pf" id="pb" style="width:0%"></div></div>
+    <div class="ga">
+      <div class="qb" id="qb">选择最稳定的支撑结构</div>
+      <div class="bridge-scene" id="bs">
+        <div class="water"></div>
+        <div class="bridge-base"></div>
+        <div class="tri-shape" id="triShape"></div>
+      </div>
+      <div class="stability-meter">
+        <div class="meter-label">稳定性指数</div>
+        <div class="meter-bar"><div class="meter-fill" id="meter" style="width:0%"></div></div>
+      </div>
+      <div class="options" id="opts"></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div class="screen end-screen" id="es">
+    <h1 id="et">🎉 建造完成！</h1>
+    <div class="fs" id="fsc">0</div>
+    <div class="sd" id="sd"></div>
+    <p id="em" style="font-size:16px;margin-bottom:20px;opacity:0.9"></p>
+    <p class="sn" id="snn"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+<script>
+const P=new URLSearchParams(location.search);
+const SN=P.get('student')||'';
+const T=10;
+let rd=0,sc=0,qs=[],ans=false;
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genQ(){
+  const r=[];
+  const questions=[
+    {q:'哪种形状最稳定？',correct:'三角形',wrongs:['正方形','五边形','圆形'],explain:'三角形具有稳定性，不容易变形'},
+    {q:'桥梁的支撑结构常用什么形状？',correct:'三角形',wrongs:['长方形','梯形','椭圆形'],explain:'三角形最稳定，所以桥梁常用三角形支撑'},
+    {q:'下面哪种方法能让正方形框架更稳定？',correct:'加一条对角线',wrongs:['加厚边框','涂上油漆','换种颜色'],explain:'加对角线把正方形分成两个三角形'},
+    {q:'三角形有几条边？',correct:'3条',wrongs:['4条','2条','5条'],explain:'三角形由三条边组成'},
+    {q:'为什么自行车架是三角形？',correct:'三角形最稳定',wrongs:['好看','省材料','轻便'],explain:'三角形不容易变形，所以自行车架用三角形'},
+    {q:'把一个三角形拉变形，结果会怎样？',correct:'拉不动，形状不变',wrongs:['变成正方形','变成圆形','很容易变形'],explain:'三角形具有稳定性，拉不动'},
+    {q:'怎样加固一个长方形框架？',correct:'钉一根木条形成三角形',wrongs:['用胶水粘','换大钉子','不用加固'],explain:'加一根木条形成三角形，利用三角形的稳定性'},
+    {q:'屋顶为什么常做成三角形？',correct:'三角形结构稳定',wrongs:['为了好看','为了省钱','因为传统'],explain:'三角形屋顶结构稳定，能承受较大重量'},
+    {q:'下面哪个不是三角形的特性？',correct:'容易变形',wrongs:['稳定性','有三条边','有三个角'],explain:'三角形不容易变形，这是它的优点'},
+    {q:'用三根木条钉成一个三角形，用力拉会怎样？',correct:'形状不会改变',wrongs:['变成其他形状','木条会断','会变大'],explain:'三角形具有稳定性，用力拉也不会变形'},
+  ];
+  const shuffled=questions.sort(()=>Math.random()-0.5);
+  for(let i=0;i<T;i++){
+    const q=shuffled[i%shuffled.length];
+    r.push({
+      question:q.q,
+      correct:q.correct,
+      options:[q.correct,...q.wrongs].sort(()=>Math.random()-0.5),
+      explain:q.explain,
+      stability:q.correct==='三角形'||q.correct==='3条'||q.correct==='加一条对角线'||q.correct==='钉一根木条形成三角形'||q.correct==='三角形结构稳定'||q.correct==='形状不会改变'||q.correct==='拉不动，形状不变'?100:30
+    });
+  }
+  return r;
+}
+
+function startGame(){
+  rd=0;sc=0;qs=genQ();
+  show('ss',false);show('es',false);show('gs',true);
+  next();
+}
+
+function show(id,v){document.getElementById(id).classList.toggle('active',v)}
+
+function drawTriangle(stable){
+  const el=document.getElementById('triShape');
+  if(stable){
+    el.innerHTML=`<svg viewBox="0 0 100 80"><polygon points="50,5 5,75 95,75" fill="none" stroke="#4CAF50" stroke-width="3"/></svg>`;
+  }else{
+    el.innerHTML=`<svg viewBox="0 0 100 80"><rect x="10" y="10" width="80" height="60" fill="none" stroke="#f44336" stroke-width="3" rx="2"/></svg>`;
+  }
+}
+
+function next(){
+  if(rd>=T){end();return}
+  ans=false;
+  const q=qs[rd];
+  document.getElementById('fb').className='fb';
+  document.getElementById('rn').textContent=rd+1;
+  document.getElementById('pb').style.width=(rd/T*100)+'%';
+  document.getElementById('qb').textContent=q.question;
+  document.getElementById('meter').style.width='0%';
+  drawTriangle(false);
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.options.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.textContent=o;
+    d.onclick=()=>pick(o,d,q);
+    opts.appendChild(d);
+  });
+}
+
+function pick(val,el,q){
+  if(ans)return;
+  ans=true;
+  const fb=document.getElementById('fb');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  if(val===q.correct){
+    sc+=10;
+    document.getElementById('sv').textContent=sc;
+    el.classList.add('correct');
+    fb.className='fb show ok';
+    fb.textContent='✅ 正确！'+q.explain;
+    document.getElementById('meter').style.width=q.stability+'%';
+    drawTriangle(true);
+  }else{
+    el.classList.add('wrong');
+    fb.className='fb show no';
+    fb.textContent='❌ 不对哦！'+q.explain;
+    document.getElementById('meter').style.width='30%';
+  }
+  setTimeout(()=>{rd++;next()},2000);
+}
+
+function end(){
+  show('gs',false);show('es',true);
+  document.getElementById('fsc').textContent=sc;
+  const s=sc>=90?3:sc>=60?2:sc>=30?1:0;
+  let h='';
+  for(let i=0;i<3;i++)h+=`<span class="star ${i<s?'filled':''}">★</span>`;
+  document.getElementById('sd').innerHTML=h;
+  document.getElementById('et').textContent=s>=3?'🏆 建筑大师！':s>=2?'🎉 表现不错！':'💪 继续加油！';
+  const m=['继续加油哦！','还不错，再努力一下！','很棒，你真厉害！','太优秀了，满分！'];
+  document.getElementById('em').textContent=m[s];
+  if(SN)document.getElementById('snn').textContent='玩家：'+SN;
+}
+</script>
+</body>
+</html>

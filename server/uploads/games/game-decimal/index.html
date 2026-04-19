@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小数大小比拼</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'PingFang SC', sans-serif; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.game-container { width: 100%; max-width: 480px; padding: 20px; }
+.header { text-align: center; color: white; margin-bottom: 20px; text-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.header h1 { font-size: 26px; }
+.stats { display: flex; justify-content: center; gap: 16px; margin-top: 8px; }
+.stat { background: rgba(255,255,255,0.25); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+.scene { background: white; border-radius: 24px; padding: 32px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); margin-bottom: 20px; }
+.vs-area { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 24px 0; }
+.vs-card { flex: 1; padding: 24px 16px; border-radius: 16px; text-align: center; border: 3px solid #e8ecf1; transition: all 0.3s; }
+.vs-card .label { font-size: 13px; color: #999; margin-bottom: 8px; }
+.vs-card .number { font-size: 36px; font-weight: 800; color: #333; }
+.vs-text { font-size: 28px; font-weight: 800; color: #43e97b; }
+.question-text { font-size: 18px; font-weight: 600; color: #333; text-align: center; margin-bottom: 20px; }
+.btn-group { display: flex; gap: 12px; justify-content: center; }
+.vs-btn { padding: 14px 32px; border: 2px solid #e8ecf1; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s; background: white; min-width: 100px; }
+.vs-btn:hover { border-color: #43e97b; }
+.vs-btn.correct { border-color: #00b894; background: #e8fff5; color: #00b894; }
+.vs-btn.wrong { border-color: #ff7675; background: #ffe8e8; color: #ff7675; }
+.vs-btn.disabled { pointer-events: none; opacity: 0.5; }
+.progress-bar { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: white; border-radius: 3px; transition: width 0.5s; }
+.feedback { text-align: center; padding: 12px; border-radius: 10px; margin-bottom: 12px; font-size: 15px; font-weight: 600; display: none; }
+.feedback.show { display: block; }
+.start-screen, .end-screen { text-align: center; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.start-screen h1, .end-screen h1 { font-size: 32px; margin-bottom: 12px; }
+.start-screen p, .end-screen p { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+.btn { background: white; color: #43e97b; border: none; padding: 14px 40px; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
+.score-big { font-size: 64px; font-weight: 800; margin: 20px 0; }
+.combo { font-size: 14px; color: #43e97b; font-weight: 700; margin-top: 4px; }
+.timer { font-size: 13px; color: #999; text-align: center; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="start-screen" id="start-screen">
+    <h1>🔢 小数大比拼</h1>
+    <p>四年级下册 · 小数的意义和性质</p>
+    <p style="font-size:14px;opacity:0.8">快速比较两个小数的大小！</p>
+    <br>
+    <button class="btn" onclick="startGame()">开始挑战 →</button>
+  </div>
+
+  <div id="game-screen" style="display:none">
+    <div class="header">
+      <h1>🔢 小数大比拼</h1>
+      <div class="stats">
+        <span class="stat">⭐ <span id="score">0</span></span>
+        <span class="stat">🔥 <span id="combo">0</span>连击</span>
+        <span class="stat">⏱️ <span id="timer">0</span>s</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="scene">
+      <div class="question-text">哪个小数更大？</div>
+      <div class="vs-area">
+        <div class="vs-card" id="card-a">
+          <div class="label">左</div>
+          <div class="number" id="num-a"></div>
+        </div>
+        <div class="vs-text">VS</div>
+        <div class="vs-card" id="card-b">
+          <div class="label">右</div>
+          <div class="number" id="num-b"></div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="vs-btn" onclick="answer('left')">👈 左边大</button>
+        <button class="vs-btn" onclick="answer('equal')">= 一样大</button>
+        <button class="vs-btn" onclick="answer('right')">右边大 👉</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="end-screen" id="end-screen" style="display:none">
+    <h1 id="end-title">🎉 挑战完成！</h1>
+    <div class="score-big" id="final-score">0</div>
+    <p id="end-msg"></p>
+    <button class="btn" onclick="startGame()">再来一次 →</button>
+  </div>
+</div>
+
+<script>
+let questions = [], currentQ = 0, score = 0, combo = 0, answered = false, timerInterval, seconds = 0;
+
+function genDecimal() {
+  const intPart = Math.floor(Math.random() * 10);
+  const decLen = Math.floor(Math.random() * 3) + 1;
+  let decPart = '';
+  for (let i = 0; i < decLen; i++) decPart += Math.floor(Math.random() * 10);
+  return parseFloat(intPart + '.' + decPart);
+}
+
+function generateQuestions() {
+  const qs = [];
+  for (let i = 0; i < 12; i++) {
+    let a = genDecimal(), b = genDecimal();
+    // 确保有各种情况
+    if (i % 4 === 0) { a = Math.round(a * 100) / 100; b = a; } // 相等
+    else if (i % 4 === 1) { while (a === b) b = genDecimal(); } // 不等
+    qs.push({ a, b, correct: a > b ? 'left' : a < b ? 'right' : 'equal' });
+  }
+  return qs;
+}
+
+function startGame() {
+  questions = generateQuestions(); currentQ = 0; score = 0; combo = 0; seconds = 0; answered = false;
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => { seconds++; document.getElementById('timer').textContent = seconds; }, 1000);
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentQ >= questions.length) return endGame();
+  answered = false;
+  const q = questions[currentQ];
+  document.getElementById('score').textContent = score;
+  document.getElementById('combo').textContent = combo;
+  document.getElementById('progress').style.width = (currentQ / questions.length * 100) + '%';
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.style.display = 'none';
+
+  document.getElementById('num-a').textContent = q.a.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  document.getElementById('num-b').textContent = q.b.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+
+  document.querySelectorAll('.vs-btn').forEach(b => { b.className = 'vs-btn'; });
+}
+
+function answer(choice) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentQ];
+  const btns = document.querySelectorAll('.vs-btn');
+  const fb = document.getElementById('feedback');
+
+  btns.forEach(b => b.classList.add('disabled'));
+  const correctIdx = q.correct === 'left' ? 0 : q.correct === 'right' ? 2 : 1;
+  btns[correctIdx].classList.add('correct');
+
+  if (choice === q.correct) {
+    combo++;
+    const bonus = combo >= 3 ? 5 : 0;
+    score += 10 + bonus;
+    fb.textContent = combo >= 3 ? `🔥 ${combo}连击！+${10+bonus}分` : '✅ 正确！+10分';
+    fb.style.background = '#e8fff5'; fb.style.color = '#00b894';
+  } else {
+    combo = 0;
+    btns[choice === 'left' ? 0 : choice === 'right' ? 2 : 1].classList.add('wrong');
+    fb.textContent = `❌ 答错了！${q.a} ${q.correct === 'left' ? '>' : q.correct === 'right' ? '<' : '='} ${q.b}`;
+    fb.style.background = '#ffe8e8'; fb.style.color = '#ff7675';
+  }
+
+  fb.className = 'feedback show';
+  document.getElementById('score').textContent = score;
+  document.getElementById('combo').textContent = combo;
+  setTimeout(() => { currentQ++; showQuestion(); }, 1000);
+}
+
+function endGame() {
+  clearInterval(timerInterval);
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'block';
+  document.getElementById('final-score').textContent = score;
+  const correct = Math.round(score / 12);
+  document.getElementById('end-title').textContent = correct >= 10 ? '🎉 太厉害了！' : correct >= 7 ? '👍 很棒！' : '💪 继续加油！';
+  document.getElementById('end-msg').textContent = `答对 ${correct}/12 题，用时 ${seconds} 秒`;
+}
+</script>
+</body>
+</html>

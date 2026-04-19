@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>趣学园 - 知识点游戏化教学平台</title>
+  <link rel="stylesheet" href="/static/css/style.css?v=5">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand" onclick="navigate('home')">🎮 趣学园</div>
+    <div class="nav-links">
+      <a onclick="navigate('home')" class="nav-link" data-page="home">首页</a>
+      <a onclick="navigate('knowledge')" class="nav-link" data-page="knowledge">知识点</a>
+      <div class="nav-secondary">
+        <a class="nav-link" onclick="toggleSecondaryMenu(event)">更多 ▾</a>
+        <div class="nav-secondary-menu" id="secondary-menu">
+          <a onclick="navigate('prompts'); closeSecondaryMenu()">🛠️ 创作工坊</a>
+          <a onclick="navigate('create'); closeSecondaryMenu()">📤 上传游戏</a>
+        </div>
+      </div>
+    </div>
+    <!-- 当前学生信息 -->
+    <div id="nav-student" class="nav-student" style="display:none">
+      <div class="nav-student-avatar" id="nav-student-avatar" onclick="navigate('student')">👤</div>
+      <div class="nav-student-actions">
+        <span class="nav-student-name" id="nav-student-name" onclick="navigate('student')"></span>
+        <span class="nav-student-class" id="nav-student-class"></span>
+        <button class="btn-switch-student" onclick="navigate('students')">切换</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="app"></main>
+
+  <!-- 学生选择弹窗（保留用于游戏打开时的快速选择） -->
+  <div id="student-modal" class="modal" style="display:none">
+    <div class="modal-overlay" onclick="closeStudentModal()"></div>
+    <div class="student-modal-content">
+      <div class="student-modal-header">
+        <h2>👋 你好，请选择你的身份</h2>
+        <button class="btn-icon" onclick="closeStudentModal()">✕</button>
+      </div>
+      <div class="student-modal-body">
+        <!-- 步骤指示器 -->
+        <div class="student-steps">
+          <div class="student-step active" id="step-1">
+            <div class="step-num">1</div>
+            <div class="step-text">选年级</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="student-step" id="step-2">
+            <div class="step-num">2</div>
+            <div class="step-text">选班级</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="student-step" id="step-3">
+            <div class="step-num">3</div>
+            <div class="step-text">选名字</div>
+          </div>
+        </div>
+
+        <!-- 年级选择 -->
+        <div class="student-select-panel" id="panel-grade">
+          <div class="panel-title">选择你的年级</div>
+          <div class="grade-grid" id="grade-grid"></div>
+        </div>
+
+        <!-- 班级选择 -->
+        <div class="student-select-panel" id="panel-class" style="display:none">
+          <div class="panel-title">选择你的班级</div>
+          <button class="btn btn-sm btn-outline back-btn" onclick="goToStep(1)">← 返回选年级</button>
+          <div class="class-grid" id="class-grid"></div>
+        </div>
+
+        <!-- 学生选择 -->
+        <div class="student-select-panel" id="panel-student" style="display:none">
+          <div class="panel-title">找到你的名字，点击确认</div>
+          <button class="btn btn-sm btn-outline back-btn" onclick="goToStep(2)">← 返回选班级</button>
+          <div class="student-search-bar">
+            <input class="form-input" id="student-search" placeholder="🔍 输入名字快速查找..." oninput="filterStudents(this.value)" />
+          </div>
+          <div class="student-grid" id="student-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 班级分析模态框 -->
+  <div id="analytics-modal" class="modal" style="display:none">
+    <div class="modal-overlay" onclick="closeAnalyticsModal()"></div>
+    <div class="analytics-modal-content">
+      <div class="analytics-modal-header">
+        <h2>📊 班级分析</h2>
+        <button class="btn-icon" onclick="closeAnalyticsModal()">✕</button>
+      </div>
+      <div class="analytics-modal-body" id="analytics-body">
+        <!-- 动态填充 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 游戏运行弹窗 -->
+  <div id="game-modal" class="modal" style="display:none">
+    <div class="modal-overlay" onclick="closeGameModal()"></div>
+    <div class="modal-content game-modal-content">
+      <div class="game-modal-header">
+        <span id="game-modal-title" class="game-title"></span>
+        <div class="game-modal-actions">
+          <button onclick="toggleFullscreen()" class="btn-icon" title="全屏">⛶</button>
+          <button onclick="closeGameModal()" class="btn-icon" title="关闭">✕</button>
+        </div>
+      </div>
+      <iframe id="game-iframe" class="game-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+
+  <script src="/static/js/api.js?v=5"></script>
+  <script src="/static/js/app.js?v=5"></script>
+</body>
+</html>
