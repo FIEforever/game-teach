@@ -1,3 +1,5 @@
+// Catch-all serverless function for Vercel
+// This file handles ALL requests: API, static files, and SPA routing
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
@@ -8,7 +10,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// 设置 VERCEL 环境变量，让 database.js 使用内存 JSON 数据库
+// 设置 VERCEL 环境变量
 process.env.VERCEL = '1'
 
 // 导入路由
@@ -30,14 +32,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString(), env: 'vercel' })
 })
 
-// 静态文件服务 - CSS/JS
+// 静态文件服务
 app.use('/static', express.static(path.join(__dirname, '../web/static')))
-
-// 游戏文件服务
 app.use('/games', express.static(path.join(__dirname, '../server/uploads/games')))
 
-// 所有其他路由返回 index.html (SPA fallback)
-app.get('*', (req, res) => {
+// SPA fallback
+app.use((req, res) => {
   const htmlPath = path.join(__dirname, '../web/index.html')
   if (fs.existsSync(htmlPath)) {
     res.sendFile(htmlPath)
