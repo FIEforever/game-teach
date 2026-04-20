@@ -1,5 +1,7 @@
 const express = require('express')
 const cors = require('cors')
+const path = require('path')
+const fs = require('fs')
 
 const app = express()
 
@@ -16,7 +18,7 @@ const schoolRoutes = require('../server/routes/school')
 const templateRoutes = require('../server/routes/templates')
 const userRoutes = require('../server/routes/users')
 
-// 挂载路由
+// 挂载 API 路由
 app.use('/api/knowledge', knowledgeRoutes)
 app.use('/api/games', gameRoutes)
 app.use('/api/school', schoolRoutes)
@@ -26,6 +28,22 @@ app.use('/api/users', userRoutes)
 // 健康检查
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString(), env: 'vercel' })
+})
+
+// 静态文件服务 - CSS/JS
+app.use('/static', express.static(path.join(__dirname, '../web/static')))
+
+// 游戏文件服务
+app.use('/games', express.static(path.join(__dirname, '../server/uploads/games')))
+
+// 所有其他路由返回 index.html (SPA fallback)
+app.get('*', (req, res) => {
+  const htmlPath = path.join(__dirname, '../web/index.html')
+  if (fs.existsSync(htmlPath)) {
+    res.sendFile(htmlPath)
+  } else {
+    res.status(404).send('Not Found')
+  }
 })
 
 module.exports = app
