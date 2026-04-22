@@ -46,7 +46,7 @@ async function renderPage() {
     app.innerHTML = html
   } catch (e) {
     console.error('页面渲染错误:', e)
-    app.innerHTML = `<div class="empty-state" style="padding:60px"><div style="font-size:48px;margin-bottom:16px">😵</div><div style="font-size:18px;color:#ff7675;margin-bottom:8px">页面加载失败</div><div style="font-size:14px;color:#999">${e.message}</div><button class="btn btn-primary" style="margin-top:24px" onclick="renderPage()">重新加载</button></div>`
+    app.innerHTML = `<div class="empty-state" style="padding:60px"><div style="font-size:48px;margin-bottom:16px"><span class="icon-box warning" style="width:48px;height:48px"></span></div><div style="font-size:18px;color:#ff7675;margin-bottom:8px">页面加载失败</div><div style="font-size:14px;color:#999">${e.message}</div><button class="btn btn-primary" style="margin-top:24px" onclick="renderPage()">重新加载</button></div>`
   }
 }
 
@@ -62,16 +62,16 @@ async function renderHome() {
     gradeMap[gradeName].push(c)
   })
 
-  const gradeEmojis = { '一年级': '🌱', '二年级': '🌿', '三年级': '🍀', '四年级': '🌳', '五年级': '🌟', '六年级': '🎓' }
+  const gradeIcons = { '一年级': '<span class="icon-circle green">1</span>', '二年级': '<span class="icon-circle green">2</span>', '三年级': '<span class="icon-circle green">3</span>', '四年级': '<span class="icon-circle blue">4</span>', '五年级': '<span class="icon-circle purple">5</span>', '六年级': '<span class="icon-circle purple">6</span>' }
 
   let classCardsHtml = ''
   for (const [gradeName, classes] of Object.entries(gradeMap)) {
     classCardsHtml += `
-      <div class="grade-section-title">${gradeEmojis[gradeName] || '📚'} ${gradeName}</div>
+      <div class="grade-section-title">${gradeIcons[gradeName] || '<span class="icon-circle gray">K</span>'} ${gradeName}</div>
       <div class="class-select-grid fade-in">
         ${classes.map(c => `
           <div class="class-select-card" onclick="navigate('students', { classId: '${c.id}', className: '${c.grade_name || ''}${c.class_name || ''}', gradeName: '${c.grade_name || ''}' })">
-            <div class="class-select-icon">🏫</div>
+            <div class="class-select-icon"></div>
             <div class="class-select-name">${c.grade_name || ''}${c.class_name || ''}</div>
             <div class="class-select-meta">${c.student_count || 0} 名学生</div>
           </div>
@@ -82,15 +82,15 @@ async function renderHome() {
 
   return `
     <div class="hero fade-in">
-      <h1>🎮 让每个知识点都变成好玩的游戏</h1>
+      <h1><span class="icon-box game hero-icon"></span> 让每个知识点都变成好玩的游戏</h1>
       <p>覆盖小学各年级各学科知识点，每个知识点都有配套教学小游戏。选择班级，开始你的学习之旅。</p>
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg" onclick="window.scrollTo({top: document.querySelector('.grade-section-title')?.offsetTop - 80, behavior: 'smooth'})">选择班级开始学习</button>
       </div>
     </div>
 
-    <div class="section-title fade-in" style="margin-top:8px">🏫 选择班级</div>
-    ${classCardsHtml || '<div class="empty-state"><div class="icon">🏫</div><div class="text">暂无班级数据</div></div>'}
+    <div class="section-title fade-in" style="margin-top:8px"><span class="icon-box school"></span> 选择班级</div>
+    ${classCardsHtml || '<div class="empty-state"><div class="icon"><span class="icon-box school"></span></div><div class="text">暂无班级数据</div></div>'}
   `
 }
 
@@ -99,7 +99,7 @@ let pageStudents = []
 
 async function renderStudentsPage() {
   const { classId, className, gradeName } = window._params || {}
-  if (!classId) return '<div class="empty-state"><div class="icon">🏫</div><div class="text">请先选择一个班级</div><button class="btn btn-primary" style="margin-top:16px" onclick="navigate(\'home\')">← 返回首页</button></div>'
+  if (!classId) return '<div class="empty-state"><div class="icon"><span class="icon-box school"></span></div><div class="text">请先选择一个班级</div><button class="btn btn-primary" style="margin-top:16px" onclick="navigate(\'home\')">← 返回首页</button></div>'
 
   currentClassId = classId
   pageStudents = await getSchoolStudents(classId)
@@ -167,7 +167,7 @@ async function renderKnowledge() {
   const grades = Object.values(knowledgeTree)
 
   if (grades.length === 0) {
-    return '<div class="empty-state"><div class="icon">📚</div><div class="text">暂无知识点数据</div></div>'
+    return '<div class="empty-state"><div class="icon"><span class="icon-box books"></span></div><div class="text">暂无知识点数据</div></div>'
   }
 
   // 加载班级统计（如果有选中学生）
@@ -191,7 +191,7 @@ async function renderKnowledge() {
 
   // 班级分析按钮
   const analyticsBtn = (currentStudent && currentStudent.class_id)
-    ? `<button class="btn btn-accent btn-sm" onclick="openAnalyticsModal()">📊 班级分析</button>`
+    ? `<button class="btn btn-accent btn-sm" onclick="openAnalyticsModal()"><span class="icon-box chart"></span> 班级分析</button>`
     : ''
 
   return `
@@ -225,7 +225,7 @@ function getKPStat(kpId) {
 }
 
 function renderUnitContent(unit) {
-  if (!unit) return '<div class="empty-state"><div class="icon">📂</div><div class="text">请选择一个单元</div></div>'
+  if (!unit) return '<div class="empty-state"><div class="icon"><span class="icon-box search"></span></div><div class="text">请选择一个单元</div></div>'
   return `
     <div style="margin-bottom:24px">
       <h2 style="font-size:22px;font-weight:700">${unit.name}</h2>
@@ -333,13 +333,13 @@ async function handleSearch(keyword) {
         </div>
       `
     }).join('')
-    : '<div class="empty-state"><div class="icon">🔍</div><div class="text">未找到相关知识点</div></div>'
+    : '<div class="empty-state"><div class="icon"><span class="icon-box search"></span></div><div class="text">未找到相关知识点</div></div>'
 }
 
 // ========== 游戏详情页（增强版） ==========
 async function renderGameDetail() {
   const { kpId, kpName } = window._params || {}
-  if (!kpId) return '<div class="empty-state"><div class="icon">🎮</div><div class="text">请先选择一个知识点</div></div>'
+  if (!kpId) return '<div class="empty-state"><div class="icon"><span class="icon-box game"></span></div><div class="text">请先选择一个知识点</div></div>'
 
   const [point, games] = await Promise.all([
     getKnowledgePoint(kpId),
@@ -354,7 +354,7 @@ async function renderGameDetail() {
       if (kpStudents && kpStudents.length > 0) {
         masteryHtml = `
           <div class="mastery-section fade-in">
-            <div class="section-title">📈 学生掌握情况</div>
+            <div class="section-title"><span class="icon-box chart"></span> 学生掌握情况</div>
             <table class="mastery-table">
               <thead>
                 <tr>
@@ -407,7 +407,7 @@ async function renderGameDetail() {
       </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <div class="section-title" style="margin-bottom:0">🎮 教学游戏 (${games.length})</div>
+        <div class="section-title" style="margin-bottom:0"><span class="icon-box game"></span> 教学游戏 (${games.length})</div>
         <button class="btn btn-accent btn-sm" onclick="navigate('create', { kpId: '${kpId}', kpName: '${kpName}' })">+ 上传游戏</button>
       </div>
 
@@ -417,9 +417,9 @@ async function renderGameDetail() {
         </div>
       ` : `
         <div class="empty-state">
-          <div class="icon">🎮</div>
+          <div class="icon"><span class="icon-box game"></span></div>
           <div class="text">该知识点暂无游戏，成为第一个创作者吧！</div>
-          <button class="btn btn-primary" style="margin-top:16px" onclick="navigate('create', { kpId: '${kpId}', kpName: '${kpName}' })">🛠️ 去创作工坊</button>
+          <button class="btn btn-primary" style="margin-top:16px" onclick="navigate('create', { kpId: '${kpId}', kpName: '${kpName}' })"><span class="icon-box tools"></span> 去创作工坊</button>
         </div>
       `}
 
@@ -431,7 +431,7 @@ async function renderGameDetail() {
 // ========== 学生仪表板页 ==========
 async function renderStudentDashboard() {
   if (!currentStudent) {
-    return '<div class="empty-state"><div class="icon">👤</div><div class="text">请先选择一个学生</div><button class="btn btn-primary" style="margin-top:16px" onclick="navigate(\'home\')">← 选择班级</button></div>'
+    return '<div class="empty-state"><div class="icon"><span class="icon-box person"></span></div><div class="text">请先选择一个学生</div><button class="btn btn-primary" style="margin-top:16px" onclick="navigate(\'home\')">← 选择班级</button></div>'
   }
 
   let dashboard = null
@@ -469,7 +469,7 @@ async function renderStudentDashboard() {
       `
     }).join('')
   } else {
-    kpProgressHtml = '<div class="empty-state"><div class="icon">📊</div><div class="text">暂无学习数据，快去玩游戏吧！</div></div>'
+    kpProgressHtml = '<div class="empty-state"><div class="icon"><span class="icon-box chart"></span></div><div class="text">暂无学习数据，快去玩游戏吧！</div></div>'
   }
 
   // 最近游戏记录 - 从kpBreakdown中提取
@@ -503,7 +503,7 @@ async function renderStudentDashboard() {
     }
   }
   if (!historyHtml) {
-    historyHtml = '<div class="empty-state"><div class="icon">🎮</div><div class="text">暂无游戏记录</div></div>'
+    historyHtml = '<div class="empty-state"><div class="icon"><span class="icon-box game"></span></div><div class="text">暂无游戏记录</div></div>'
   }
 
   return `
@@ -531,12 +531,12 @@ async function renderStudentDashboard() {
         </div>
       </div>
 
-      <div class="section-title">📊 知识点进度</div>
+      <div class="section-title"><span class="icon-box chart"></span> 知识点进度</div>
       <div class="kp-progress-grid">
         ${kpProgressHtml}
       </div>
 
-      <div class="section-title">🕐 最近游戏记录</div>
+      <div class="section-title"><span class="icon-box game"></span> 最近游戏记录</div>
       <ul class="history-list">
         ${historyHtml}
       </ul>
@@ -551,7 +551,7 @@ async function openAnalyticsModal() {
   const modal = document.getElementById('analytics-modal')
   const body = document.getElementById('analytics-body')
   modal.style.display = 'block'
-  body.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><div class="text">加载中...</div></div>'
+  body.innerHTML = '<div class="empty-state"><div class="icon"><span class="icon-box game"></span></div><div class="text">加载中...</div></div>'
 
   try {
     const data = await getClassDashboard(currentStudent.class_id)
@@ -616,7 +616,7 @@ async function openAnalyticsModal() {
       if (strong.length > 0) {
         strongWeakHtml += `
           <div class="kp-list-section">
-            <div class="kp-list-title strong">✅ 掌握较好的知识点</div>
+            <div class="kp-list-title strong"><span class="icon-box check"></span> 掌握较好的知识点</div>
             ${strong.map(kp => `
               <div class="kp-list-item">
                 <span>${kp.kpName || ''}</span>
@@ -630,7 +630,7 @@ async function openAnalyticsModal() {
       if (weak.length > 0) {
         strongWeakHtml += `
           <div class="kp-list-section">
-            <div class="kp-list-title weak">⚠️ 需要加强的知识点</div>
+            <div class="kp-list-title weak"><span class="icon-box warning"></span> 需要加强的知识点</div>
             ${weak.map(kp => `
               <div class="kp-list-item">
                 <span>${kp.kpName || ''}</span>
@@ -646,7 +646,7 @@ async function openAnalyticsModal() {
 
     body.innerHTML = overviewHtml + barChartHtml + strongWeakHtml
   } catch (e) {
-    body.innerHTML = `<div class="empty-state"><div class="icon">😵</div><div class="text">加载失败：${e.message}</div></div>`
+    body.innerHTML = `<div class="empty-state"><div class="icon"><span class="icon-box warning"></span></div><div class="text">加载失败：${e.message}</div></div>`
   }
 }
 
@@ -661,12 +661,12 @@ async function renderPrompts() {
   return `
     <div class="fade-in">
       <div style="margin-bottom:32px">
-        <h2 style="font-size:28px;font-weight:800">🛠️ 创作工坊</h2>
+        <h2 style="font-size:28px;font-weight:800"><span class="icon-box tools"></span> 创作工坊</h2>
         <p style="color:var(--text-light);margin-top:8px">选择一个游戏模板，复制提示词到 SOLO 中生成自定义教学游戏，然后上传到对应知识点。</p>
       </div>
 
       <div style="background:linear-gradient(135deg,#E8FFF5,#E8F4FD);border-radius:var(--radius);padding:24px;margin-bottom:32px">
-        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px">📋 如何创建自定义游戏？</h3>
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px"><span class="icon-box idea"></span> 如何创建自定义游戏？</h3>
         <ol style="padding-left:20px;color:var(--text);line-height:2.2">
           <li><strong>选择模板</strong> — 从下方选择一个合适的游戏类型模板</li>
           <li><strong>复制提示词</strong> — 点击"复制提示词"按钮</li>
@@ -676,7 +676,7 @@ async function renderPrompts() {
         </ol>
       </div>
 
-      <div class="section-title">🎮 游戏模板</div>
+      <div class="section-title"><span class="icon-box game"></span> 游戏模板</div>
       <div class="template-grid">
         ${templates.map(t => renderTemplateCard(t)).join('')}
       </div>
@@ -685,11 +685,11 @@ async function renderPrompts() {
 }
 
 function renderTemplateCard(tpl) {
-  const emojis = { '选择题闯关': '🎯', '拖拽配对': '🧩', '填空挑战': '✏️', '记忆翻牌': '🃏', '数学速算': '🧮', '拼图游戏': '🧸' }
-  const emoji = emojis[tpl.name] || '🎮'
+  const iconClasses = { '选择题闯关': 'target', '拖拽配对': 'puzzle', '填空挑战': 'pencil', '记忆翻牌': 'cards', '数学速算': 'abacus', '拼图游戏': 'teddy' }
+  const iconClass = iconClasses[tpl.name] || 'game'
   return `
     <div class="card template-card">
-      <div class="template-card-header">${emoji}</div>
+      <div class="template-card-header" style="background:linear-gradient(135deg, var(--primary), var(--primary-light))"><span class="icon-box ${iconClass}" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.9)"></span></div>
       <div class="template-card-body">
         <div class="template-card-title">${tpl.name}</div>
         <div class="template-card-desc">${tpl.description}</div>
@@ -698,13 +698,13 @@ function renderTemplateCard(tpl) {
           ${tpl.tags.map(tag => `<span class="tag tag-gray">${tag}</span>`).join('')}
         </div>
         <div class="prompt-box">
-          <button class="copy-btn" onclick="copyPrompt(this, \`${escapeForAttr(tpl.prompt_template)}\`)">📋 复制</button>${escapeHtml(tpl.prompt_template)}
+          <button class="copy-btn" onclick="copyPrompt(this, \`${escapeForAttr(tpl.prompt_template)}\`)"><span class="icon-box write" style="width:16px;height:16px;border-radius:4px"></span> 复制</button>${escapeHtml(tpl.prompt_template)}
         </div>
         ${tpl.example_prompt ? `
           <details style="margin-top:12px">
-            <summary style="cursor:pointer;font-size:14px;color:var(--primary);font-weight:600">💡 查看示例提示词</summary>
+            <summary style="cursor:pointer;font-size:14px;color:var(--primary);font-weight:600"><span class="icon-box idea"></span> 查看示例提示词</summary>
             <div class="prompt-box" style="margin-top:8px">
-              <button class="copy-btn" onclick="copyPrompt(this, \`${escapeForAttr(tpl.example_prompt)}\`)">📋 复制</button>${escapeHtml(tpl.example_prompt)}
+              <button class="copy-btn" onclick="copyPrompt(this, \`${escapeForAttr(tpl.example_prompt)}\`)"><span class="icon-box write" style="width:16px;height:16px;border-radius:4px"></span> 复制</button>${escapeHtml(tpl.example_prompt)}
             </div>
           </details>
         ` : ''}
@@ -715,8 +715,8 @@ function renderTemplateCard(tpl) {
 
 function copyPrompt(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✅ 已复制'
-    setTimeout(() => btn.textContent = '📋 复制', 2000)
+    btn.innerHTML = '<span class="icon-box check"></span> 已复制'
+    setTimeout(() => btn.innerHTML = '<span class="icon-box write" style="width:16px;height:16px;border-radius:4px"></span> 复制', 2000)
   })
 }
 
@@ -726,7 +726,7 @@ function renderCreate() {
   return `
     <div class="fade-in">
       <div class="upload-form">
-        <h2 style="font-size:28px;font-weight:800;margin-bottom:8px">📤 上传教学游戏</h2>
+        <h2 style="font-size:28px;font-weight:800;margin-bottom:8px"><span class="icon-box game"></span> 上传教学游戏</h2>
         <p style="color:var(--text-light);margin-bottom:32px">将你用SOLO生成的HTML游戏上传到对应知识点，与其他老师共享。</p>
 
         <div class="form-group">
@@ -754,14 +754,14 @@ function renderCreate() {
         <div class="form-group">
           <label class="form-label">游戏文件 (HTML) *</label>
           <div class="file-upload-area" onclick="document.getElementById('file-input').click()">
-            <div class="file-upload-icon">📁</div>
+            <div class="file-upload-icon"><span class="icon-box game" style="width:48px;height:48px;border-radius:14px"></span></div>
             <div class="file-upload-text" id="file-name">点击选择HTML文件</div>
             <div class="file-upload-hint">支持 .html 文件，最大10MB</div>
           </div>
           <input type="file" id="file-input" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this)" />
         </div>
 
-        <button class="btn btn-primary btn-lg" style="width:100%" onclick="handleUpload()">🚀 发布游戏</button>
+        <button class="btn btn-primary btn-lg" style="width:100%" onclick="handleUpload()"><span class="icon-box rocket"></span> 发布游戏</button>
       </div>
     </div>
   `
@@ -800,7 +800,7 @@ async function handleUpload() {
     })
     const data = await res.json()
     if (data.code === 0) {
-      alert('🎉 发布成功！')
+      alert('发布成功！')
       navigate('game', { kpId, kpName: document.getElementById('upload-kp').value })
     } else {
       alert('发布失败：' + data.message)
@@ -856,14 +856,14 @@ function toggleFullscreen() {
 
 // ========== 工具函数 ==========
 function getKPIcon(name) {
-  if (/乘|除|加|减|算|计算/.test(name)) return '🧮'
-  if (/图形|角|面积|周长|三角形|平行/.test(name)) return '📐'
-  if (/分数|小数|百分数/.test(name)) return '🔢'
-  if (/统计|图表|数据/.test(name)) return '📊'
-  if (/方程|未知数|等式/.test(name)) return '⚖️'
-  if (/位置|方向|坐标/.test(name)) return '🧭'
-  if (/规律|模式|排列/.test(name)) return '🔍'
-  return '📚'
+  if (/乘|除|加|减|算|计算/.test(name)) return '<span class="icon-circle pink">算</span>'
+  if (/图形|角|面积|周长|三角形|平行/.test(name)) return '<span class="icon-circle blue">形</span>'
+  if (/分数|小数|百分数/.test(name)) return '<span class="icon-circle orange">数</span>'
+  if (/统计|图表|数据/.test(name)) return '<span class="icon-circle blue">统</span>'
+  if (/方程|未知数|等式/.test(name)) return '<span class="icon-circle purple">方</span>'
+  if (/位置|方向|坐标/.test(name)) return '<span class="icon-circle green">向</span>'
+  if (/规律|模式|排列/.test(name)) return '<span class="icon-circle green">规</span>'
+  return '<span class="icon-circle gray">知</span>'
 }
 
 function hashCode(str) {
@@ -916,10 +916,11 @@ async function showStudentSelector() {
   try {
     const grades = await getSchoolGrades()
     const grid = document.getElementById('grade-grid')
-    const emojis = ['🌱', '🌿', '🍀', '🌳', '🌟', '🎓']
+    const gradeColors = ['green', 'green', 'green', 'blue', 'purple', 'purple']
+    const gradeNums = ['1', '2', '3', '4', '5', '6']
     grid.innerHTML = grades.map((g, i) => `
       <div class="grade-card" onclick="selectGrade('${g.id}', '${g.name}')">
-        <div class="grade-emoji">${emojis[i] || '📚'}</div>
+        <div class="grade-emoji icon-circle ${gradeColors[i] || 'gray'}">${gradeNums[i] || (i+1)}</div>
         <div class="grade-name">${g.name}</div>
       </div>
     `).join('')
@@ -955,7 +956,7 @@ async function selectGrade(gradeId, gradeName) {
     const grid = document.getElementById('class-grid')
     grid.innerHTML = classes.map(c => `
       <div class="class-card" onclick="selectClass('${c.id}', '${c.class_name}')">
-        <div class="class-icon">🏫</div>
+        <div class="class-icon"></div>
         <div class="class-name">${gradeName}${c.class_name}</div>
         <div class="class-student-count"></div>
       </div>
@@ -1021,21 +1022,21 @@ function confirmStudent(id, name, gender, avatarColor, studentNo) {
 
 // ========== 游戏卡片渲染 ==========
 function renderGameCard(game) {
-  const emojis = ['🎯', '🧩', '🎲', '🏆', '⭐', '🚀', '🎪', '🎨', '📝', '💎']
-  const emoji = emojis[Math.abs(hashCode(game.id)) % emojis.length]
+  const iconTypes = ['target', 'puzzle', 'dice', 'trophy', 'star', 'rocket', 'circus', 'art', 'write', 'diamond']
+  const iconType = iconTypes[Math.abs(hashCode(game.id)) % iconTypes.length]
   return `
     <div class="card game-card" onclick="openGame('${game.id}')">
       <div class="game-card-cover">
-        <span class="game-emoji">${emoji}</span>
+        <span class="icon-box ${iconType}" style="width:40px;height:40px;border-radius:12px"></span>
         ${game.is_default ? '<span class="default-badge">官方</span>' : ''}
       </div>
       <div class="game-card-body">
         <div class="game-card-title">${game.title}</div>
-        <div class="game-card-kp">📖 ${game.kp_name || '知识点'}</div>
+        <div class="game-card-kp"><span class="icon-circle gray" style="width:20px;height:20px;font-size:10px">K</span> ${game.kp_name || '知识点'}</div>
         <div class="game-card-footer">
           <div class="game-card-stats">
-            <span>▶ ${game.play_count || 0}</span>
-            <span>❤ ${game.like_count || 0}</span>
+            <span>&#9654; ${game.play_count || 0}</span>
+            <span>&#9829; ${game.like_count || 0}</span>
           </div>
           <div class="game-card-author">${game.author_name || '匿名'}</div>
         </div>

@@ -4,25 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>趣学园 - 知识点游戏化教学平台</title>
-  <link rel="stylesheet" href="/static/css/style.css?v=6">
+  <link rel="stylesheet" href="/static/css/style.css?v=7">
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-brand" onclick="navigate('home')">🎮 趣学园</div>
+    <div class="nav-brand" onclick="navigate('home')"><span class="icon-box game" style="background:rgba(255,255,255,0.2)"></span> 趣学园</div>
     <div class="nav-links">
       <a onclick="navigate('home')" class="nav-link" data-page="home">首页</a>
       <a onclick="navigate('knowledge')" class="nav-link" data-page="knowledge">知识点</a>
       <div class="nav-secondary">
         <a class="nav-link" onclick="toggleSecondaryMenu(event)">更多 ▾</a>
         <div class="nav-secondary-menu" id="secondary-menu">
-          <a onclick="navigate('prompts'); closeSecondaryMenu()">🛠️ 创作工坊</a>
-          <a onclick="navigate('create'); closeSecondaryMenu()">📤 上传游戏</a>
+          <a onclick="navigate('prompts'); closeSecondaryMenu()"><span class="icon-box tools"></span> 创作工坊</a>
+          <a onclick="navigate('create'); closeSecondaryMenu()"><span class="icon-box game"></span> 上传游戏</a>
         </div>
       </div>
     </div>
     <!-- 当前学生信息 -->
     <div id="nav-student" class="nav-student" style="display:none">
-      <div class="nav-student-avatar" id="nav-student-avatar" onclick="navigate('student')">👤</div>
+      <div class="nav-student-avatar" id="nav-student-avatar" onclick="navigate('student')"><span class="icon-box person" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.3)"></span></div>
       <div class="nav-student-actions">
         <span class="nav-student-name" id="nav-student-name" onclick="navigate('student')"></span>
         <span class="nav-student-class" id="nav-student-class"></span>
@@ -38,7 +38,7 @@
     <div class="modal-overlay" onclick="closeStudentModal()"></div>
     <div class="student-modal-content">
       <div class="student-modal-header">
-        <h2>👋 你好，请选择你的身份</h2>
+        <h2><span class="icon-box person"></span> 你好，请选择你的身份</h2>
         <button class="btn-icon" onclick="closeStudentModal()">✕</button>
       </div>
       <div class="student-modal-body">
@@ -78,7 +78,7 @@
           <div class="panel-title">找到你的名字，点击确认</div>
           <button class="btn btn-sm btn-outline back-btn" onclick="goToStep(2)">← 返回选班级</button>
           <div class="student-search-bar">
-            <input class="form-input" id="student-search" placeholder="🔍 输入名字快速查找..." oninput="filterStudents(this.value)" />
+            <input class="form-input" id="student-search" placeholder="输入名字快速查找..." oninput="filterStudents(this.value)" />
           </div>
           <div class="student-grid" id="student-grid"></div>
         </div>
@@ -91,7 +91,7 @@
     <div class="modal-overlay" onclick="closeAnalyticsModal()"></div>
     <div class="analytics-modal-content">
       <div class="analytics-modal-header">
-        <h2>📊 班级分析</h2>
+        <h2><span class="icon-box chart"></span> 班级分析</h2>
         <button class="btn-icon" onclick="closeAnalyticsModal()">✕</button>
       </div>
       <div class="analytics-modal-body" id="analytics-body">
@@ -115,7 +115,7 @@
     </div>
   </div>
 
-  <script src="/static/js/api.js?v=6"></script>
-  <script src="/static/js/app.js?v=6"></script>
+  <script src="/static/js/api.js?v=7"></script>
+  <script src="/static/js/app.js?v=7"></script>
 </body>
 </html>

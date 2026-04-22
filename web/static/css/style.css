@@ -1773,19 +1773,9 @@ body {
   border-radius: 50px;
 }
 
-/* 浮动装饰元素 */
+/* Remove hero::after decorative emoji */
 .hero::after {
-  content: '🌟📚🎮🚀🎨';
-  display: block;
-  font-size: 32px;
-  letter-spacing: 16px;
-  margin-top: 24px;
-  animation: floatDecor 3s ease-in-out infinite;
-}
-
-@keyframes floatDecor {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  display: none !important;
 }
 
 /* 卡片入场动画 */
@@ -1840,4 +1830,227 @@ body {
 .student-modal-header,
 .analytics-modal-header {
   background: linear-gradient(135deg, #F0EDFF, #E8E4FF, #F0FFF4);
+}
+
+/* ========== CSS Icon System (replaces emoji) ========== */
+
+/* Colored circles with text/numbers */
+.icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.icon-circle.green { background: linear-gradient(135deg, #00B894, #55EFC4); }
+.icon-circle.blue { background: linear-gradient(135deg, #0984E3, #74B9FF); }
+.icon-circle.purple { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
+.icon-circle.orange { background: linear-gradient(135deg, #E17055, #FAB1A0); }
+.icon-circle.red { background: linear-gradient(135deg, #D63031, #FF7675); }
+.icon-circle.yellow { background: linear-gradient(135deg, #FDCB6E, #FFEAA7); color: #E17055; }
+.icon-circle.gray { background: linear-gradient(135deg, #636E72, #B2BEC3); }
+.icon-circle.pink { background: linear-gradient(135deg, #E84393, #FD79A8); }
+
+/* Larger version for grade titles */
+.grade-section-title .icon-circle {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+/* Icon boxes (replacing emoji) */
+.icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  flex-shrink: 0;
+  position: relative;
+}
+.icon-box::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+/* Individual icon styles using CSS shapes */
+.icon-box.school { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
+.icon-box.school::after { background: #fff; width: 10px; height: 10px; border-radius: 2px; }
+
+.icon-box.books { background: linear-gradient(135deg, #0984E3, #74B9FF); }
+.icon-box.books::after { background: #fff; width: 8px; height: 12px; border-radius: 1px; }
+
+.icon-box.game { background: linear-gradient(135deg, #00B894, #55EFC4); }
+.icon-box.game::after { background: transparent; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; }
+
+.icon-box.chart { background: linear-gradient(135deg, #E17055, #FAB1A0); }
+.icon-box.chart::after { background: #fff; width: 4px; height: 10px; border-radius: 1px; bottom: 4px; }
+
+.icon-box.search { background: linear-gradient(135deg, #636E72, #B2BEC3); }
+.icon-box.search::after { background: transparent; width: 10px; height: 10px; border: 2px solid #fff; border-radius: 50%; }
+
+.icon-box.tools { background: linear-gradient(135deg, #FDCB6E, #F39C12); }
+.icon-box.tools::after { background: #fff; width: 10px; height: 3px; border-radius: 1px; }
+
+.icon-box.target { background: linear-gradient(135deg, #D63031, #FF7675); }
+.icon-box.target::after { background: #fff; width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 0 3px transparent, 0 0 0 4px #fff; }
+
+.icon-box.puzzle { background: linear-gradient(135deg, #0984E3, #74B9FF); }
+.icon-box.puzzle::after { background: #fff; width: 8px; height: 8px; border-radius: 2px 0 0 0; }
+
+.icon-box.pencil { background: linear-gradient(135deg, #FDCB6E, #F39C12); }
+.icon-box.pencil::after { background: #fff; width: 3px; height: 12px; border-radius: 1px; transform: rotate(-45deg); }
+
+.icon-box.cards { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
+.icon-box.cards::after { background: #fff; width: 10px; height: 14px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.5); }
+
+.icon-box.abacus { background: linear-gradient(135deg, #E84393, #FD79A8); }
+.icon-box.abacus::after { background: #fff; width: 12px; height: 2px; box-shadow: 0 4px 0 #fff, 0 8px 0 #fff; }
+
+.icon-box.teddy { background: linear-gradient(135deg, #FAB1A0, #E17055); }
+.icon-box.teddy::after { background: #fff; width: 10px; height: 10px; border-radius: 50%; }
+
+.icon-box.idea { background: linear-gradient(135deg, #FDCB6E, #F39C12); }
+.icon-box.idea::after { background: #fff; width: 8px; height: 8px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
+
+.icon-box.rocket { background: linear-gradient(135deg, #D63031, #FF7675); }
+.icon-box.rocket::after { background: #fff; width: 6px; height: 12px; border-radius: 3px 3px 0 0; }
+
+.icon-box.check { background: linear-gradient(135deg, #00B894, #55EFC4); }
+.icon-box.check::after { background: transparent; width: 8px; height: 4px; border: none; border-bottom: 2px solid #fff; border-left: 2px solid #fff; transform: rotate(-45deg); }
+
+.icon-box.warning { background: linear-gradient(135deg, #FDCB6E, #F39C12); }
+.icon-box.warning::after { background: #fff; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid #fff; }
+
+.icon-box.person { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
+.icon-box.person::after { background: #fff; width: 8px; height: 8px; border-radius: 50%; }
+
+.icon-box.star { background: linear-gradient(135deg, #FDCB6E, #F39C12); }
+.icon-box.star::after { background: #fff; width: 8px; height: 8px; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+
+.icon-box.trophy { background: linear-gradient(135deg, #FDCB6E, #F39C12); }
+.icon-box.trophy::after { background: #fff; width: 8px; height: 6px; border-radius: 2px 2px 0 0; }
+
+.icon-box.dice { background: linear-gradient(135deg, #0984E3, #74B9FF); }
+.icon-box.dice::after { background: #fff; width: 10px; height: 10px; border-radius: 2px; }
+
+.icon-box.circus { background: linear-gradient(135deg, #E84393, #FD79A8); }
+.icon-box.circus::after { background: transparent; width: 10px; height: 10px; border-radius: 50%; border: 2px dashed #fff; }
+
+.icon-box.art { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
+.icon-box.art::after { background: #fff; width: 10px; height: 10px; border-radius: 50%; }
+
+.icon-box.write { background: linear-gradient(135deg, #00B894, #55EFC4); }
+.icon-box.write::after { background: #fff; width: 3px; height: 12px; border-radius: 1px; }
+
+.icon-box.diamond { background: linear-gradient(135deg, #0984E3, #74B9FF); }
+.icon-box.diamond::after { background: #fff; width: 8px; height: 8px; transform: rotate(45deg); border-radius: 2px; }
+
+/* Hero icon larger */
+.icon-box.hero-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+/* Class card icon */
+.class-select-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+}
+.class-select-icon::after {
+  content: '';
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border-radius: 4px;
+}
+
+/* Grade emoji in student modal */
+.grade-emoji {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 auto 8px;
+}
+
+/* Class icon in modal */
+.class-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+.class-icon::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 3px;
+}
+
+/* Game emoji */
+.game-emoji {
+  font-size: 0; /* hide text, show CSS shape */
+}
+.game-emoji::after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: block;
+}
+
+/* Template card header */
+.template-card-header {
+  width: 100%;
+  height: 80px;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+}
+.template-card-header::after {
+  content: '';
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+}
+
+/* Section title icon alignment */
+.section-title .icon-box {
+  margin-right: 6px;
+  vertical-align: middle;
 }
